@@ -8,33 +8,55 @@ import base64
 from socketIO_client import SocketIO, BaseNamespace
 
 RSCR_PATH = 'Rscript'
-SERVER = None # Change with server IP and port, until GUI arrives.
-PORT = None
+SERVER = '145.97.202.35'
+PORT = 80
 
-class Task():
-    task_id = None
-    script_path = None
-    data_path = None
+class WorkerThread(threading.Thread):
+    # Not used at the moment.
+    def __init__(self, thread_id, task):
+        threading.Thread.__init__(self)
+        self.thread_id = thread_id
+        self.task = task
+    def run(self):
+        self.task.run()
 
-    def __init__(self, task_id, script_path, data_path):
-        self.id = task_id
-        self.script_path = script_path
-        self.data_path = data_path
-        self.tmp_dir = tempfile.TemporaryDirectory()
+class roctoClass(BaseNamespace):
+    def on_result_returned(self, returns):
+        print('Task arrives.')
+        global task_list # Probably a very bad idea...
+        task_list = []
+        task_list.append(returns)
+
+class Task(object):
+    def __init__(self, ip, port):
+        self._get_task(ip, port)
+
+    def _get_task(self, ip, port):
+        sio = SocketIO(ip, port, roctoClass) # TODO: port should be integer?
+        sio.emit('request_job')
+        sio.wait(2)
+        sio.disconnect()
+
+        print(task_list)
+        results = task_list[0]
+
+        self.id = results['ID']
+        self.script_path = results['RSCRIPT']
+        self.input_path = results['INPUT']
+        self.tmp_dir = tempfile.TemporaryDirectory() # Any reason not to change this into .TemporaryFile?
         self.output = os.path.join(self.tmp_dir.name, 'tmp_output')
         self.tmp_script = os.path.join(self.tmp_dir.name, 'tmp_script')
-        self.tmp_data = os.path.join(self.tmp_dir.name, 'tmp_data')
-
+        self.tmp_input = os.path.join(self.tmp_dir.name, 'tmp_data')
 
         with open(self.tmp_script, 'wb') as outf:
             remote_iter = requests.get(self.script_path).iter_content(chunk_size=1024)
             [outf.write(i) for i in remote_iter]
-        with open(self.tmp_data, 'wb') as outf:
-            remote_iter = requests.get(self.data_path).iter_content(chunk_size=1024)
+        with open(self.tmp_input, 'wb') as outf:
+            remote_iter = requests.get(self.input_path).iter_content(chunk_size=1024)
             [outf.write(i) for i in remote_iter]
 
     def run(self):
-        self.proc_ret = subprocess.run([RSCR_PATH, self.tmp_script, self.tmp_data,\
+        self.proc_ret = subprocess.run([RSCR_PATH, self.tmp_script, self.tmp_input,\
         self.output, str(self.id)], stderr = subprocess.PIPE, stdout = subprocess.PIPE)
 
         try:
@@ -42,27 +64,12 @@ class Task():
         except subprocess.CalledProcessError as e:
             print(e)
 
-
-class roctoClass(BaseNamespace):
-    def on_result_returned(self, results):
-        # Requires task_list=[], not cool.
-        task_list.append(Task(results['ID'], results['RSCRIPT'], results['INPUT']))
-
-if __name__ == '__main__':
-
-    # To be replaced with GUI loop.
-    task_list = []
-    sio = SocketIO(SERVER, PORT, roctoClass)
-    sio.emit('request_job')
-    sio.wait(2)
-
-    [i.run() for i in task_list]
-
-    for i in task_list:
-        if i.proc_ret.returncode == 0:
-            byte_enc = base64.b64encode(open(i.output, 'rb').read())
-            print('Finished task going back!')
-            sio.emit('send_results', {
-            'filename' : str(i.id) + i.output,
-            'content' : str(byte_enc)
-            })
+    def send_results(self, ip, port):
+        print('sending')
+        self.byte_enc = base64.b64encode(open(self.output, 'rb').read())
+        sio = SocketIO(ip, port, roctoClass) # TODO: port should be integer?
+        sio.emit('send_results', {
+        'ID' : str(self.id),
+        'content' : str(self.byte_enc)[2:-1] # removes b''
+        })
+        sio.disconnect()
