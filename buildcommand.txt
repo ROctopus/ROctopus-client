@@ -1,0 +1,1 @@
+pyinstaller --clean --onefile --windowed --icon icons\rocto_icon.ico --paths C:\Users\Erik-Jan\AppData\Local\Programs\Python\Python35\Lib\site-packages\PyQt5\Qt\bin .\rocto.py
