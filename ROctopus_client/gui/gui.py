@@ -19,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def InitUi(self):
         self.ui.actionSettings.triggered.connect(self.InitSettings)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
-        # self.ui.run_button.clicked.connect(self.)
+        self.ui.run_button.clicked.connect(self.start_thread)
         self.ui.quit_button.clicked.connect(QtCore.QCoreApplication.instance().quit)
         self.show()
         # QtCore.QCoreApplication.instance().quit()
@@ -40,24 +40,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_statusbar(self, text):
         self.statusBar().showMessage(text)
 
-    def get_task(self):
-        # Deprecated.
-        self.statusBar().showMessage('Getting task from: ' + self.ui.ip_entry.text() + ':' + self.ui.port_entry.text())
-        self.task = client.Task(self.ui.ip_entry.text(), self.ui.port_entry.text()) # Make ip and port class attributes?
-        self.ui.task_info.setText(str(self.task.id))
-        self.statusBar().showMessage('Task arrived!')
-
-    def start_task(self):
-        # Deprecated.
-        self.statusBar().showMessage('Task starts! Window will hang :(')
-        self.task.run()
-        self.statusBar().showMessage('Task finished!')
-        self.task.send_results(self.settings.value('ip_entry', type=str), self.settings.value('port_entry', type=int))
-        self.statusBar().showMessage('Task output sent back!')
-
     def connect_to_server(self):
-        return 1
-
+        # Gets task already at the moment.
+        print(self.settings.value('server_ip', type=str))
+        print(self.settings.value('port', type=int))
+        self.task = client.Task(self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
+        self.ui.groupBox.setEnabled(True)
 
     def create_thread(self):
         self.workerthread = QtCore.QThread()
@@ -65,21 +53,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_thread(self):
         try:
-            self.worker = threadWorker(self.task, self.settings.value('ip_entry', type=str), self.settings.value('port_entry', type=int))
+            self.worker = threadWorker(self.task, self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
             self.worker.start.connect(self.worker.run)
             self.worker.start.connect(self.update_statusbar)
             self.worker.finished.connect(self.update_statusbar)
-
+            self.worker.sent.connect(self.update_statusbar)
             self.worker.moveToThread(self.workerthread)
             self.worker.start.emit('Task starts!')
         except AttributeError:
             self.create_thread()
 
-            self.worker = threadWorker(self.task, self.ui.ip_entry.text(), self.ui.port_entry.text())
+            self.worker = threadWorker(self.task, self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
             self.worker.start.connect(self.worker.run)
             self.worker.start.connect(self.update_statusbar)
             self.worker.finished.connect(self.update_statusbar)
-
+            self.worker.sent.connect(self.update_statusbar)
             self.worker.moveToThread(self.workerthread)
             self.worker.start.emit('Task starts!')
 
@@ -96,8 +84,11 @@ class threadWorker(QtCore.QObject):
 
     start = pyqtSignal(str)
     finished = pyqtSignal(str)
+    sent = pyqtSignal(str)
     @pyqtSlot()
     def run(self):
         print('Worker started!')
         self.task.run()
         self.finished.emit('Task finished!')
+        self.task.send_results(self.ip, self.port)
+        self.sent.emit('Task sent!')
