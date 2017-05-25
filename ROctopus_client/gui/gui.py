@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from ..client import client
 from .mainwindow import *
 from .gui_settings import *
+from .aboutdialog import *
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -17,21 +18,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.settings = QtCore.QSettings('ROctopus', 'ROctopus')
 
     def InitUi(self):
+        self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory.
         self.ui.actionSettings.triggered.connect(self.InitSettings)
+        self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
         self.ui.run_button.clicked.connect(self.start_thread)
+        self.ui.actionQuit.triggered.connect(QtCore.QCoreApplication.instance().quit)
         self.ui.quit_button.clicked.connect(QtCore.QCoreApplication.instance().quit)
         self.show()
-        # QtCore.QCoreApplication.instance().quit()
 
     def InitSettings(self):
-        self.dialog = SettingsDialog()
-        if self.dialog.exec_(): # Modal window. Use .show() for modeless.
-            values = self.dialog.getValues()
-            print(values)
+        self.settings_dialog = SettingsDialog()
+        if self.settings_dialog.exec_(): # Modal window. Use .show() for modeless.
+            values = self.settings_dialog.getValues()
             for (key, value) in values.items():
                 self.settings.setValue(key, value)
-        # TODO: Check for errors.
+
+    def InitAbout(self):
+        self.about_dialog = AboutDialog()
 
     def get_file(self):
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '/home')
@@ -46,6 +50,9 @@ class MainWindow(QtWidgets.QMainWindow):
         print(self.settings.value('port', type=int))
         self.task = client.Task(self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
         self.ui.groupBox.setEnabled(True)
+        self.ui.label_3.setEnabled(True)
+        self.ui.connect_status.setEnabled(True)
+        self.ui.connect_status.setText('Yes!')
 
     def create_thread(self):
         self.workerthread = QtCore.QThread()
