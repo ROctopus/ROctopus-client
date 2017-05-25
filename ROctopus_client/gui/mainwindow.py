@@ -1,0 +1,1 @@
+/home/oghn/MEGAsync/Projeler/Roctopus/gui/roctopus_gui/ui_2nd/mainwindow_2.py
