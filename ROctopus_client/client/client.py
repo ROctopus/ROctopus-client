@@ -8,8 +8,6 @@ import base64
 from socketIO_client import SocketIO, BaseNamespace
 
 RSCR_PATH = 'Rscript'
-SERVER = '145.97.202.35'
-PORT = 80
 
 class roctoClass(BaseNamespace):
     def on_result_returned(self, returns):
