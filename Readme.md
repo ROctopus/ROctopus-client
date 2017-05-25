@@ -5,6 +5,7 @@ This is a minimal working example of a client for Roctopus. Currently has severe
 * Pack the dependencies: PyQt5 and socketIO-client.
 * Implement task requesting and running functions in threads.
 * `import` procedure needs optimization for faster start-up.
+* Fix fonts for GUI.
 
 # How to use?
 

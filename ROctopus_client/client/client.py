@@ -8,17 +8,6 @@ import base64
 from socketIO_client import SocketIO, BaseNamespace
 
 RSCR_PATH = 'Rscript'
-SERVER = '145.97.202.35'
-PORT = 80
-
-class WorkerThread(threading.Thread):
-    # Not used at the moment.
-    def __init__(self, thread_id, task):
-        threading.Thread.__init__(self)
-        self.thread_id = thread_id
-        self.task = task
-    def run(self):
-        self.task.run()
 
 class roctoClass(BaseNamespace):
     def on_result_returned(self, returns):
@@ -32,7 +21,7 @@ class Task(object):
         self._get_task(ip, port)
 
     def _get_task(self, ip, port):
-        sio = SocketIO(ip, port, roctoClass) # TODO: port should be integer?
+        sio = SocketIO(ip, port, roctoClass)
         sio.emit('request_job')
         sio.wait(2)
         sio.disconnect()
