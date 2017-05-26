@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "ROctopus Client"))
         self.avaliable_tasks.setText(_translate("MainWindow", "N/A"))
         self.label.setText(_translate("MainWindow", "Available tasks:"))
         self.connect_status.setText(_translate("MainWindow", "No."))
@@ -173,4 +173,3 @@ class Ui_MainWindow(object):
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionAbout.setText(_translate("MainWindow", "About ROctopus"))
         self.actionLicense_Information.setText(_translate("MainWindow", "License Information"))
-
