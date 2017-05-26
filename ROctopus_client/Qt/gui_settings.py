@@ -54,7 +54,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Settings"))
         self.groupBox.setTitle(_translate("Dialog", "Server Settings"))
         self.ip_label.setText(_translate("Dialog", "Server IP:"))
         self.port_label.setText(_translate("Dialog", "Port"))
@@ -66,6 +66,8 @@ class SettingsDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.InitUi()
 
+        self.ui.ip_entry.setInputMask('000.000.000.000')
+        self.ui.port_entry.setInputMask('00000')
     def getValues(self):
         return({
             'server_ip' : self.ui.ip_entry.text(),
