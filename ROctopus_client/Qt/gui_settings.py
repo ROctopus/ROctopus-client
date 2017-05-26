@@ -66,6 +66,8 @@ class SettingsDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.InitUi()
 
+        self.ui.ip_entry.setInputMask('000.000.000.000')
+        self.ui.port_entry.setInputMask('00000')
     def getValues(self):
         return({
             'server_ip' : self.ui.ip_entry.text(),
