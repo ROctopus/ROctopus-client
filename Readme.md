@@ -12,6 +12,7 @@ First you will need to install dependencies:
 * Python 3.6
 * [PyQt5](https://pypi.python.org/pypi/PyQt5)
 * [socketIO-client](https://pypi.python.org/pypi/socketIO-client)
+* [psutil](https://pypi.python.org/pypi/psutil/)
 
 Then open up a command line in the root folder of the project and run
 `python ROctopus_client/Qt/gui.py`.

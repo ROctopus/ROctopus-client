@@ -14,6 +14,6 @@ setup(name='ROctopus-client',
       license='XXX',
       packages=['ROctopus_client'],
       install_requires=[
-      'PyQt5', 'socketIO-client', 'requests', 'urllib3'
+      'PyQt5', 'socketIO-client', 'requests', 'urllib3', 'psutil'
       ],
       zip_safe=False)

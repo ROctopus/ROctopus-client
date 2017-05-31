@@ -7,14 +7,20 @@ import sys
 import base64
 from socketIO_client import SocketIO, BaseNamespace
 
+from .errors import ServerErr
+
 RSCR_PATH = 'Rscript'
 
 class roctoClass(BaseNamespace):
     def on_result_returned(self, returns):
         print('Task arrives.')
-        global task_list # Probably a very bad idea...
-        task_list = []
-        task_list.append(returns)
+        try:
+            self.task_list.append(returns)
+        except AttributeError:
+            self.task_list = []
+            self.task_list.append(returns)
+    def on_err(self, err):
+        raise ServerErr(err)
 
 class Task(object):
     def __init__(self, ip, port):
