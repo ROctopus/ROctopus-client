@@ -13,31 +13,19 @@ RSCR_PATH = 'Rscript'
 
 class roctoClass(BaseNamespace):
     def on_result_returned(self, returns):
-        print('Task arrives.')
         try:
-            self.task_list.append(returns)
+            self.job_queue.append(returns)
         except AttributeError:
-            self.task_list = []
-            self.task_list.append(returns)
+            self.job_queue = []
+            self.job_queue.append(returns)
     def on_err(self, err):
         raise ServerErr(err)
 
-class Task(object):
-    def __init__(self, ip, port):
-        self._get_task(ip, port)
-
-    def _get_task(self, ip, port):
-        sio = SocketIO(ip, port, roctoClass)
-        sio.emit('request_job')
-        sio.wait(2)
-        sio.disconnect()
-
-        print(task_list)
-        results = task_list[0]
-
-        self.id = results['ID']
-        self.script_path = results['RSCRIPT']
-        self.input_path = results['INPUT']
+class Job(object):
+    def __init__(self, job_id, script_path, input_path):
+        self.job_id = job_id
+        self.script_path = script_path
+        self.input_path = input_path
         self.tmp_dir = tempfile.TemporaryDirectory() # Any reason not to change this into .TemporaryFile?
         self.output = os.path.join(self.tmp_dir.name, 'tmp_output')
         self.tmp_script = os.path.join(self.tmp_dir.name, 'tmp_script')
@@ -52,19 +40,9 @@ class Task(object):
 
     def run(self):
         self.proc_ret = subprocess.run([RSCR_PATH, self.tmp_script, self.tmp_input,\
-        self.output, str(self.id)], stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+        self.output, str(self.job_id)], stderr = subprocess.PIPE, stdout = subprocess.PIPE)
 
         try:
             self.proc_ret.check_returncode()
         except subprocess.CalledProcessError as e:
             print(e)
-
-    def send_results(self, ip, port):
-        print('sending')
-        self.byte_enc = base64.b64encode(open(self.output, 'rb').read())
-        sio = SocketIO(ip, port, roctoClass) # TODO: port should be integer?
-        sio.emit('send_results', {
-        'ID' : str(self.id),
-        'content' : str(self.byte_enc)[2:-1] # removes b''
-        })
-        sio.disconnect()

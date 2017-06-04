@@ -1,5 +1,6 @@
 import sys
 import psutil
+import logging
 # import time
 # from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtCore, QtWidgets
@@ -28,20 +29,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.workthread = QtCore.QThread()
         self.workthread.start()
 
+    @pyqtSlot(int)
     def _handle_conn_status(self, code):
         if code == 1:
+            logging.info('Successfully connected to server.')
             self.ui.conn_status.setEnabled(True) # Change name in .ui
             self.ui.conn_status.setText('Connected!')
             self.ui.connect_button.setText('Disconnect')
             self.ui.runBox.setEnabled(True)
         elif code == 0:
+            logging.info('Successfully disconnected from server.')
             self.ui.conn_status.setEnabled(False)
             self.ui.conn_status.setText('Disconnected!')
+        elif code == -1:
+            logging.info('Connection problem!')
+            self.ui.conn_status.setEnabled(False)
+            self.ui.conn_status.setText('Disconnected!')
+            self.ui.textEdit.append('Problem connecting to server.')
 
-    def _handle_job_recv(self):
-        self.ui.run_button.setEnabled(True)
-        for i in self.networker.sio.get_namespace().task_list:
-            print(i)
+    @pyqtSlot(int, int)
+    def _handle_netw_job_status(self, status, job_id):
+        if status == -1:
+            logging.info('Job {} is received.'.format(job_id))
+
+            self.ui.run_button.setEnabled(True)
+            self.ui.textEdit.setEnabled(True)
+            self.ui.textEdit.append(text)
+            self.local_queue = {}
+
+            for i in self.networker.sio.get_namespace().job_queue:
+                task = client.Job(i['ID'], i['RSCRIPT'], i['INPUT'])
+                self.local_queue[i['ID']] = task
+
+        if status == 0:
+            self.local_queue.pop(i['ID'])
+
+    @pyqtSlot(int, int)
+    def _task_status(self, status, job_id):
+        if status == -1:
+            self.ui.textEdit.append('Job {} started.'.format(job_id))
+        if status == 0:
+            self.ui.textEdit.append('Job {} finished.'.format(job_id))
+            self.networker.send_results.emit(self.local_queue[job_id])
 
     def InitUi(self):
         self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory.
@@ -49,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
         self.ui.get_task_but.clicked.connect(self.get_job)
-        self.ui.run_button.clicked.connect(self.start_thread)
+        self.ui.run_button.clicked.connect(self.start_worker)
         self.ui.actionQuit.triggered.connect(QtCore.QCoreApplication.instance().quit)
         self.ui.quit_button.clicked.connect(QtCore.QCoreApplication.instance().quit)
         self.show()
@@ -75,13 +104,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def InitAbout(self):
         self.about_dialog = AboutDialog()
 
-    def update_statusbar(self, text):
-        self.statusBar().showMessage(text)
-
-    def update_console(self, text):
-        self.ui.textEdit.setEnabled(True)
-        self.ui.textEdit.append(text)
-
     def connect_to_server(self):
         if self.sender().text() == 'Connect':
             try:
@@ -90,7 +112,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker.initconnect.connect(self.networker.socket_connect)
                 self.networker.get_job.connect(self.networker.socket_getjob)
                 self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.job_recv.connect(self._handle_job_recv)
+                self.networker.netw_job_status.connect(self._handle_netw_job_status)
+                self.networker.send_results.connect(self.networker.socket_send_results)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.initconnect.emit()
             except AttributeError:
@@ -100,7 +123,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker.initconnect.connect(self.networker.socket_connect)
                 self.networker.get_job.connect(self.networker.socket_getjob)
                 self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.job_recv.connect(self._handle_job_recv)
+                self.networker.netw_job_status.connect(self._handle_netw_job_status)
+                self.networker.send_results.connect(self.networker.socket_send_results)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.initconnect.emit()
         elif self.sender().text() == 'Disconnect':
@@ -108,29 +132,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def get_job(self):
         count = self.ui.number_of_tasks.value()
+        logging.info('{} jobs were requested.'.format(count))
         for i in range(count):
             self.networker.get_job.emit(count)
 
-    def start_thread(self):
-        # EAFP vs LBYL.
-        try:
-            self.worker = threadWorker(self.task, self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
-            self.worker.start.connect(self.worker.run)
-            self.worker.start.connect(self.update_console)
-            self.worker.finished.connect(self.update_console)
-            self.worker.sent.connect(self.update_console)
-            self.worker.moveToThread(self.workthread)
-            self.worker.start.emit('Task starts!')
-        except AttributeError:
-            self._create_workthread()
-            self.worker = threadWorker(self.task, self.settings.value('server_ip', type=str), self.settings.value('port', type=int))
-            self.worker.start.connect(self.worker.run)
-            self.worker.start.connect(self.update_console)
-            self.worker.finished.connect(self.update_console)
-            self.worker.sent.connect(self.update_console)
-            self.worker.moveToThread(self.workthread)
-            self.worker.start.emit('Task starts!')
+    def start_worker(self):
+        for i in self.local_queue:
+            # Check if it already did not run. Add (a) class variable(s) to Job() for this.
+            try:
+                self.worker = threadWorker(self.local_queue[i])
+                self.worker.start.connect(self.worker.worker_run)
+                self.worker.task_status.connect(self._task_status)
+                self.worker.moveToThread(self.workthread)
+                self.worker.start.emit()
+            except AttributeError:
+                self._create_workthread()
+                self.worker = threadWorker(self.local_queue[i])
+                self.worker.start.connect(self.worker.worker_run)
+                self.worker.task_status.connect(self._task_status)
+                self.worker.moveToThread(self.workthread)
+                self.worker.start.emit()
 
+logging.basicConfig(filename = 'log.log', level = logging.DEBUG)
 app = QtWidgets.QApplication(sys.argv)
 ex = MainWindow()
 sys.exit(app.exec_())
