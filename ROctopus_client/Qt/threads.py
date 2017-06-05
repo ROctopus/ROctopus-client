@@ -47,13 +47,13 @@ class threadNetworker(QtCore.QObject):
         self.netw_job_status.emit(-1, task_id)
 
     @pyqtSlot(Job)
-    def socket_send_results(self, task):
+    def socket_send_results(self, job):
         # Switch this to try except. Need to look into raising an error
         # in case of no connection.
         if self.sio.connected == True:
             byte_enc = base64.b64encode(open(task.output, 'rb').read())
             self.sio.emit('send_results', {
-            'ID' : str(task.task_id),
+            'ID' : str(job.job_id),
             'content' : str(byte_enc)[2:-1] # removes b''
             })
         else:
