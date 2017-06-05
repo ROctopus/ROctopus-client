@@ -15,9 +15,9 @@ class threadWorker(QtCore.QObject):
 
     @pyqtSlot()
     def worker_run(self):
-        self.task_status.emit(-1, self.task.task_id)
+        self.task_status.emit(-1, self.task.job_id)
         self.task.run()
-        self.task_status.emit(0, self.task.task_id)
+        self.task_status.emit(0, self.task.job_id)
 
 class threadNetworker(QtCore.QObject):
     def __init__(self, ip, port):
