@@ -54,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ui.run_button.setEnabled(True)
             self.ui.textEdit.setEnabled(True)
-            self.ui.textEdit.append(text)
+            self.ui.textEdit.append('Job {} is received.'.format(job_id))
             self.local_queue = {}
 
             for i in self.networker.sio.get_namespace().job_queue:
