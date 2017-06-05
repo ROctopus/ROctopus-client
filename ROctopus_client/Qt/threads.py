@@ -51,14 +51,14 @@ class threadNetworker(QtCore.QObject):
         # Switch this to try except. Need to look into raising an error
         # in case of no connection.
         if self.sio.connected == True:
-            byte_enc = base64.b64encode(open(task.output, 'rb').read())
+            byte_enc = base64.b64encode(open(job.output, 'rb').read())
             self.sio.emit('send_results', {
             'ID' : str(job.job_id),
             'content' : str(byte_enc)[2:-1] # removes b''
             })
         else:
             self.sio = SocketIO(self.ip, self.port, roctoClass, wait_for_connection = False)
-            byte_enc = base64.b64encode(open(task.output, 'rb').read())
+            byte_enc = base64.b64encode(open(job.output, 'rb').read())
             self.sio.emit('send_results', {
             'ID' : str(task.task_id),
             'content' : str(byte_enc)[2:-1] # removes b''
