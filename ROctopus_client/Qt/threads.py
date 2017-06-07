@@ -1,65 +1,83 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from ROctopus_client.client.client import roctoClass, Job
+from ROctopus_client.client.client import roctoClass, Task
 from socketIO_client import SocketIO, exceptions
 import base64
 
-class threadWorker(QtCore.QObject):
-    # This is not a thread but a worker to put in a thread!
-    def __init__(self, task):
-        super().__init__()
-        self.task = task
-
-    start = pyqtSignal()
-    task_status = pyqtSignal(int, int)
-
-    @pyqtSlot()
-    def worker_run(self):
-        self.task_status.emit(-1, self.task.job_id)
-        self.task.run()
-        self.task_status.emit(0, self.task.job_id)
-
 class threadNetworker(QtCore.QObject):
+    """socketIO network handler."""
     def __init__(self, ip, port):
         super().__init__()
         self.ip = ip
         self.port = port
 
-    initconnect = pyqtSignal()
-    conn_status = pyqtSignal(int)
-    get_job = pyqtSignal(int)
-    send_results = pyqtSignal(Job)
-    netw_job_status = pyqtSignal(int, int)
+    """Signals to trigger internal methods of threadNetworker."""
+    init_connect = pyqtSignal()
+    get_task = pyqtSignal()
+    send_results = pyqtSignal(Task)
+
+    """Signals to trigger events in the main Qt thread."""
+    conn_status = pyqtSignal(int) # 1 for success, -1 for error.
+    netw_task_status = pyqtSignal(int, int, int) # Status, job_id, iter_no.
 
     @pyqtSlot()
-    def socket_connect(self):
+    def socket_initconnect(self):
+        """Connects to socketIO server and emits conn_status()."""
         try:
             self.sio = SocketIO(self.ip, self.port, roctoClass, wait_for_connection = False)
             self.conn_status.emit(1)
         except exceptions.ConnectionError:
             self.conn_status.emit(-1)
 
-    @pyqtSlot(int)
-    def socket_getjob(self, count):
-        self.sio.emit('request_job')
+    @pyqtSlot()
+    def socket_gettask(self):
+        """Gets task from the socketIO server."""
+        # Change according to api/worker.json.
+        self.sio.emit('request_task')
         self.sio.wait(.1)
-        task_id = self.sio.get_namespace().job_queue[-1]['ID']
-        self.netw_job_status.emit(-1, task_id)
+        # Process self.sio.get_namespace().task_queue[0]['version'] here.
+        job_id = self.sio.get_namespace().task_queue[0]['jobId']
+        iter_no = self.sio.get_namespace().task_queue[0]['iterNo']
+        self.netw_task_status.emit(0, job_id, iter_no)
+        # TODO:ERROR_CATCH
 
-    @pyqtSlot(Job)
-    def socket_send_results(self, job):
-        # Switch this to try except. Need to look into raising an error
-        # in case of no connection.
+    @pyqtSlot(Task)
+    def socket_sendresults(self, Task):
+        """Sends the passed Task to the server."""
+        # TODO:ERROR_CATCH
+        # TODO:Emit the status using netw_task_status()
+
         if self.sio.connected == True:
-            byte_enc = base64.b64encode(open(job.output, 'rb').read())
+            byte_enc = base64.b64encode(open(Task.output, 'rb').read()) # DEPRECATED with worker API v0.1.0.
             self.sio.emit('send_results', {
-            'ID' : str(job.job_id),
-            'content' : str(byte_enc)[2:-1] # removes b''
+            'taskId' : str(Task.task_id),
+            'iterNo' : str(Task.iter_no),
+            # 'exitStatus' : send exit status
+            'content' : str(byte_enc)[2:-1] # removes b'' # content may change according to exit status
             })
         else:
             self.sio = SocketIO(self.ip, self.port, roctoClass, wait_for_connection = False)
-            byte_enc = base64.b64encode(open(job.output, 'rb').read())
+            byte_enc = base64.b64encode(open(Task.output, 'rb').read()) # DEPRECATED with worker API v0.1.0.
             self.sio.emit('send_results', {
-            'ID' : str(task.task_id),
+            'taskId' : str(Task.task_id),
+            # 'exitStatus' : send exit status # content may change according to exit status
             'content' : str(byte_enc)[2:-1] # removes b''
             })
+
+class threadWorker(QtCore.QObject):
+    """worker object to run received tasks locally."""
+    def __init__(self, task):
+        super().__init__()
+        self.task = task
+
+    """Signals to trigger internal methods of threadWorker."""
+    start = pyqtSignal()
+
+    """Signals to trigger events in the main Qt thread."""
+    task_status = pyqtSignal(int, int) # -1 when task starts, 0 when finishes.
+
+    @pyqtSlot()
+    def worker_run(self):
+        self.task_status.emit(-1, self.task.task_id)
+        self.task.run()
+        self.task_status.emit(0, self.task.task_id)
