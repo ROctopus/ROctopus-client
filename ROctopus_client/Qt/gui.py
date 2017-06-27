@@ -46,19 +46,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.conn_status.setText('Disconnected!')
             self.ui.textEdit.append('Problem connecting to server.')
 
-    @pyqtSlot(int, int, int)
+    @pyqtSlot(int, str, int)
     def _handle_netw_task_status(self, status, task_id, iter_no):
-        if status == 0:
-            logging.info('Task {}.{} is received.'.format(task_id, iter_no))
+        logging.info('Task {}.{} is received.'.format(task_id, iter_no))
 
-            self.ui.run_button.setEnabled(True)
-            self.ui.textEdit.setEnabled(True)
-            self.ui.textEdit.append('Task {}.{} is received.'.format(task_id, iter_no))
-            self.local_queue = {}
+        self.ui.run_button.setEnabled(True)
+        self.ui.textEdit.setEnabled(True)
+        self.ui.textEdit.append('Task {}.{} is received.'.format(task_id, iter_no))
+        self.local_queue = {}
 
-            for i in self.networker.sio.get_namespace().task_queue:
-                task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
-                self.local_queue[i['jobId']] = task
+        for i in self.networker.sio.get_namespace().task_queue:
+            task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
+            self.local_queue[i['jobId']] = task    
 
     @pyqtSlot(int, int)
     def _task_status(self, status, task_id):

@@ -18,7 +18,7 @@ class threadNetworker(QtCore.QObject):
 
     """Signals to trigger events in the main Qt thread."""
     conn_status = pyqtSignal(int) # 1 for success, -1 for error.
-    netw_task_status = pyqtSignal(int, int, int) # Status, job_id, iter_no.
+    netw_task_status = pyqtSignal(int, str, int) # Status, job_id, iter_no.
 
     @pyqtSlot()
     def socket_initconnect(self):
@@ -33,13 +33,17 @@ class threadNetworker(QtCore.QObject):
     def socket_gettask(self):
         """Gets task from the socketIO server."""
         # Change according to api/worker.json.
-        self.sio.emit('request_task')
-        self.sio.wait(.1)
-        # Process self.sio.get_namespace().task_queue[0]['version'] here.
-        job_id = self.sio.get_namespace().task_queue[0]['jobId']
-        iter_no = self.sio.get_namespace().task_queue[0]['iterNo']
-        self.netw_task_status.emit(0, job_id, iter_no)
-        # TODO:ERROR_CATCH
+        try:
+            self.sio.emit('request_task')
+            self.sio.wait(.1)
+            # Process self.sio.get_namespace().task_queue[0]['version'] here.
+            job_id = self.sio.get_namespace().task_queue[0]['jobId']
+            iter_no = self.sio.get_namespace().task_queue[0]['iterNo']
+            self.netw_task_status.emit(0, job_id, iter_no)
+            # TODO:ERROR_CATCH
+        except ServerErr as e:
+            print(e)
+            print(err)
 
     @pyqtSlot(Task)
     def socket_sendresults(self, Task):
