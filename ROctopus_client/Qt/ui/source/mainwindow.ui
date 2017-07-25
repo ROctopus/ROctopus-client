@@ -233,7 +233,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Quit</string>
+         <string>&amp;Quit</string>
         </property>
         <property name="iconSize">
          <size>
@@ -258,19 +258,19 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
-    <addaction name="actionSettings"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
-     <string>About</string>
+     <string>&amp;About</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionLicense_Information"/>
@@ -284,20 +284,23 @@
     <bool>true</bool>
    </property>
   </widget>
-  <action name="actionSettings">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
+  <action name="actionPreferences">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Settings</string>
+    <string>&amp;Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionAbout">

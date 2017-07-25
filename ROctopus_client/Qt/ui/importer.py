@@ -1,7 +1,7 @@
 # Enables automated updates of .ui files created by QtCreator.
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from . import aboutdialog, settingsdialog, mainwindow
+from . import aboutdialog, preferencesdialog, mainwindow
 
 Ui_MainWindow = mainwindow.Ui_MainWindow
 
@@ -20,7 +20,7 @@ class AboutDialog(QtWidgets.QDialog):
 class SettingsDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        self.ui = settingsdialog.Ui_SettingsDialog()
+        self.ui = preferencesdialog.Ui_PreferencesDialog()
         self.ui.setupUi(self)
         self.InitUi()
 
@@ -33,11 +33,17 @@ class SettingsDialog(QtWidgets.QDialog):
             'pw' : self.ui.input_password.text(), # No way!
             'server_ip' : self.ui.ip_entry.text(),
             'port' : self.ui.port_entry.text(),
+            'r_path' : self.ui.input_rpath.text(),
+            'r_vers' : self.ui.input_rvers.text(),
             'sys_ram' : self.ui.input_ram.value(),
             'sys_cores' : self.ui.input_cpu.value()
         })
 
+    def chooseFile(self):
+        path, __ = QtWidgets.QFileDialog.getOpenFileName(self, 'Select R Executable')
+        self.ui.input_rpath.setText(path)
+
     def InitUi(self):
         self.ui.settings_buttons.accepted.connect(self.accept)
         self.ui.settings_buttons.rejected.connect(self.reject)
-        # self.show()
+        self.ui.button_path.clicked.connect(self.chooseFile)

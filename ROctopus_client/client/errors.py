@@ -1,7 +1,7 @@
 class ServerErr(Exception):
     """Errors by server"""
 
-    self.err_dict = {
+    err_dict = {
         '-1' : 'Generic error.',
         '1' : 'No jobs available.',
         '2' : 'Failed to count available jobs',

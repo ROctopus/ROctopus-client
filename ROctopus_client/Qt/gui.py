@@ -1,15 +1,16 @@
 import logging
 import sys
+import psutil
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from ROctopus_client.client import client
 from ROctopus_client.client.errors import ServerErr
 from ROctopus_client.Qt.threads import threadWorker, threadNetworker
-from ROctopus_client.Qt.ui.mainwindow import *
-from ROctopus_client.Qt.ui.settingsdialog import *
-from ROctopus_client.Qt.ui.aboutdialog import *
+from ROctopus_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
+
+API_VERSION = '0.1.0'
 
 class MainWindow(QtWidgets.QMainWindow):
     """Main Qt window with added signals and slots."""
@@ -19,6 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.InitUi()
         self.settings = QtCore.QSettings('ROctopus', 'ROctopus')
+        self.settings.setValue('api_version', API_VERSION)
 
     def _create_netwthread(self):
         self.netwthread = QtCore.QThread()
@@ -57,7 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         for i in self.networker.sio.get_namespace().task_queue:
             task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
-            self.local_queue[i['jobId']] = task    
+            self.local_queue[i['jobId']] = task
 
     @pyqtSlot(int, int)
     def _task_status(self, status, task_id):
@@ -69,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def InitUi(self):
         self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory.
-        self.ui.actionSettings.triggered.connect(self.InitSettings)
+        self.ui.actionPreferences.triggered.connect(self.InitPreferences)
         self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
         self.ui.get_task_but.clicked.connect(self.get_task)
@@ -78,30 +80,38 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.quit_button.clicked.connect(QtCore.QCoreApplication.instance().quit)
         self.show()
 
-    def InitSettings(self):
-        """Initialze SettingsDialog."""
-        self.settings_dialog = SettingsDialog()
-        self.settings_dialog.ui.system_ram.setText(str(round(psutil.virtual_memory().total/1024/1024)))
-        self.settings_dialog.ui.system_cpu.setText(str(psutil.cpu_count()))
+    def InitPreferences(self):
+        """Initialize PreferencesDialog."""
+        self.preferences_dialog = SettingsDialog()
+        self.preferences_dialog.ui.system_ram.setText(str(round(psutil.virtual_memory().total/1024/1024)))
+        self.preferences_dialog.ui.system_cpu.setText(str(psutil.cpu_count()))
 
-        # Check if the user had set server_ip, port, sys_ram and sys_cores:
+        # Check if the user had set server_ip, port, sys_ram and sys_cores, username and pw:
+        if self.settings.contains('username') and self.settings.contains('pw'):
+            self.preferences_dialog.ui.input_username.setText(self.settings.value('username', type=str))
+            self.preferences_dialog.ui.input_password.setText(self.settings.value('pw', type=str))
+
         if self.settings.contains('server_ip') and self.settings.contains('server_ip'):
-            self.settings_dialog.ui.ip_entry.setText(self.settings.value('server_ip', type=str))
-            self.settings_dialog.ui.port_entry.setText(self.settings.value('port', type=str))
+            self.preferences_dialog.ui.ip_entry.setText(self.settings.value('server_ip', type=str))
+            self.preferences_dialog.ui.port_entry.setText(self.settings.value('port', type=str))
+
+        if self.settings.contains('r_path') and self.settings.contains('r_vers'):
+            self.preferences_dialog.ui.input_rpath.setText(self.settings.value('r_path', type=str))
+            self.preferences_dialog.ui.input_rvers.setText(self.settings.value('r_vers', type=str))
 
         if self.settings.contains('sys_ram') and self.settings.contains('sys_cores'):
-            self.settings_dialog.ui.input_ram.setValue(self.settings.value('sys_ram', type=int))
-            self.settings_dialog.ui.input_cpu.setValue(self.settings.value('sys_cores', type=int))
+            self.preferences_dialog.ui.input_ram.setValue(self.settings.value('sys_ram', type=int))
+            self.preferences_dialog.ui.input_cpu.setValue(self.settings.value('sys_cores', type=int))
 
         # Get the set values once the window closes. Only if the user hits OK.
-        if self.settings_dialog.exec_(): ## Modal window. Use .show() for modeless.
-            values = self.settings_dialog.getValues()
+        if self.preferences_dialog.exec_(): ## Modal window. Use .show() for modeless.
+            values = self.preferences_dialog.getValues()
             for (key, value) in values.items():
                 self.settings.setValue(key, value)
 
     def InitAbout(self):
         """Initialize About dialog."""
-        self.about_dialog = AboutDialog()
+        self.about_dialog =  AboutDialog()
 
     def connect_to_server(self):
         if self.sender().text() == 'Connect':
