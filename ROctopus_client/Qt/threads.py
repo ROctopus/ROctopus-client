@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from ROctopus_client.client.client import roctoClass, Task
-from ROctopus_client.client.errors import ServerErr
 from socketIO_client import SocketIO, exceptions
 import base64
 
@@ -36,7 +35,7 @@ class threadNetworker(QtCore.QObject):
         # Change according to api/worker.json.
         try:
             self.sio.emit('request_task')
-            self.sio.wait(1)
+            self.sio.wait(.1)
             # Process self.sio.get_namespace().task_queue[0]['version'] here.
             job_id = self.sio.get_namespace().task_queue[0]['jobId']
             iter_no = self.sio.get_namespace().task_queue[0]['iterNo']

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'source/mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow_2.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.8.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(432, 390)
+        MainWindow.resize(389, 390)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralWidget)
@@ -69,10 +69,10 @@ class Ui_MainWindow(object):
         self.number_of_tasks.setFrame(True)
         self.number_of_tasks.setReadOnly(True)
         self.number_of_tasks.setKeyboardTracking(False)
+        self.number_of_tasks.setProperty("showGroupSeparator", False)
         self.number_of_tasks.setMinimum(1)
         self.number_of_tasks.setMaximum(5)
-        self.number_of_tasks.setProperty("showGroupSeparator", False)
-        self.number_of_tasks.setProperty("displayIntegerBase", 10)
+        self.number_of_tasks.setDisplayIntegerBase(10)
         self.number_of_tasks.setObjectName("number_of_tasks")
         self.horizontalLayout.addWidget(self.number_of_tasks)
         self.get_task_but = QtWidgets.QPushButton(self.runBox)
@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addLayout(self.horizontalLayout_5, 1, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 432, 28))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 389, 26))
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -148,7 +148,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Rocto Client"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.conn_status.setText(_translate("MainWindow", "No."))
         self.avaliable_tasks.setText(_translate("MainWindow", "N/A"))
         self.label.setText(_translate("MainWindow", "Available tasks:"))
@@ -167,4 +167,3 @@ class Ui_MainWindow(object):
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionAbout.setText(_translate("MainWindow", "About ROctopus"))
         self.actionLicense_Information.setText(_translate("MainWindow", "License Information"))
-

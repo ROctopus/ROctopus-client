@@ -1,7 +1,7 @@
 class ServerErr(Exception):
     """Errors by server"""
 
-    err_dict = {
+    self.err_dict = {
         '-1' : 'Generic error.',
         '1' : 'No jobs available.',
         '2' : 'Failed to count available jobs',
@@ -12,5 +12,5 @@ class ServerErr(Exception):
     }
     def __init__(self, err):
         self.err = err
-        self.message = err_dict[err]
+        self.message = self.err_dict[err]
         super().__init__(err)

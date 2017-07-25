@@ -1,26 +1,16 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'source/settingsdialog.ui'
-#
-# Created by: PyQt5 UI code generator 5.9
-#
-# WARNING! All changes made in this file will be lost!
-
+from PyQt5 import QtCore, QtWidgets
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_SettingsDialog(object):
-    def setupUi(self, SettingsDialog):
-        SettingsDialog.setObjectName("SettingsDialog")
-        SettingsDialog.setEnabled(True)
-        SettingsDialog.resize(318, 415)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../../icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        SettingsDialog.setWindowIcon(icon)
-        self.gridLayout_2 = QtWidgets.QGridLayout(SettingsDialog)
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.setEnabled(True)
+        Dialog.resize(412, 415)
+        self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
         self.gridLayout_2.setContentsMargins(11, 11, 11, 11)
         self.gridLayout_2.setSpacing(6)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.groupBox_2 = QtWidgets.QGroupBox(SettingsDialog)
+        self.groupBox_2 = QtWidgets.QGroupBox(Dialog)
         self.groupBox_2.setObjectName("groupBox_2")
         self.gridLayout_5 = QtWidgets.QGridLayout(self.groupBox_2)
         self.gridLayout_5.setContentsMargins(11, 11, 11, 11)
@@ -31,9 +21,6 @@ class Ui_SettingsDialog(object):
         self.gridLayout_4.setSpacing(6)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.input_cpu = QtWidgets.QSpinBox(self.groupBox_2)
-        self.input_cpu.setEnabled(False)
-        self.input_cpu.setMinimum(1)
-        self.input_cpu.setMaximum(8)
         self.input_cpu.setObjectName("input_cpu")
         self.gridLayout_4.addWidget(self.input_cpu, 1, 3, 1, 2)
         self.label = QtWidgets.QLabel(self.groupBox_2)
@@ -49,9 +36,6 @@ class Ui_SettingsDialog(object):
         self.label_3.setObjectName("label_3")
         self.gridLayout_4.addWidget(self.label_3, 0, 4, 1, 1)
         self.input_ram = QtWidgets.QSpinBox(self.groupBox_2)
-        self.input_ram.setEnabled(False)
-        self.input_ram.setMinimum(512)
-        self.input_ram.setMaximum(4096)
         self.input_ram.setObjectName("input_ram")
         self.gridLayout_4.addWidget(self.input_ram, 0, 1, 1, 1)
         self.system_ram = QtWidgets.QLabel(self.groupBox_2)
@@ -74,14 +58,14 @@ class Ui_SettingsDialog(object):
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_5.addItem(spacerItem2, 1, 0, 1, 1)
         self.gridLayout_2.addWidget(self.groupBox_2, 3, 0, 1, 1)
-        self.settings_buttons = QtWidgets.QDialogButtonBox(SettingsDialog)
+        self.settings_buttons = QtWidgets.QDialogButtonBox(Dialog)
         self.settings_buttons.setAcceptDrops(False)
         self.settings_buttons.setOrientation(QtCore.Qt.Horizontal)
         self.settings_buttons.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.settings_buttons.setCenterButtons(False)
         self.settings_buttons.setObjectName("settings_buttons")
         self.gridLayout_2.addWidget(self.settings_buttons, 4, 0, 1, 1)
-        self.groupBox_3 = QtWidgets.QGroupBox(SettingsDialog)
+        self.groupBox_3 = QtWidgets.QGroupBox(Dialog)
         self.groupBox_3.setObjectName("groupBox_3")
         self.gridLayout_7 = QtWidgets.QGridLayout(self.groupBox_3)
         self.gridLayout_7.setContentsMargins(11, 11, 11, 11)
@@ -92,7 +76,6 @@ class Ui_SettingsDialog(object):
         self.gridLayout_6.setSpacing(6)
         self.gridLayout_6.setObjectName("gridLayout_6")
         self.input_username = QtWidgets.QLineEdit(self.groupBox_3)
-        self.input_username.setMinimumSize(QtCore.QSize(120, 0))
         self.input_username.setObjectName("input_username")
         self.gridLayout_6.addWidget(self.input_username, 0, 1, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.groupBox_3)
@@ -102,10 +85,8 @@ class Ui_SettingsDialog(object):
         self.label_4.setObjectName("label_4")
         self.gridLayout_6.addWidget(self.label_4, 0, 0, 1, 1)
         self.input_password = QtWidgets.QLineEdit(self.groupBox_3)
-        self.input_password.setMinimumSize(QtCore.QSize(120, 0))
-        self.input_password.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText)
-        self.input_password.setEchoMode(QtWidgets.QLineEdit.Password)
-        self.input_password.setProperty("clearButtonEnabled", False)
+        self.input_password.setInputMethodHints(QtCore.Qt.ImhHiddenText)
+        self.input_password.setClearButtonEnabled(False)
         self.input_password.setObjectName("input_password")
         self.gridLayout_6.addWidget(self.input_password, 1, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(165, 24, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -114,7 +95,7 @@ class Ui_SettingsDialog(object):
         self.gridLayout_6.addItem(spacerItem4, 1, 2, 1, 1)
         self.gridLayout_7.addLayout(self.gridLayout_6, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.groupBox_3, 0, 0, 1, 1)
-        self.groupBox = QtWidgets.QGroupBox(SettingsDialog)
+        self.groupBox = QtWidgets.QGroupBox(Dialog)
         self.groupBox.setObjectName("groupBox")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.groupBox)
         self.gridLayout_3.setContentsMargins(11, 11, 11, 11)
@@ -157,25 +138,50 @@ class Ui_SettingsDialog(object):
         self.gridLayout_3.addLayout(self.gridLayout, 0, 0, 1, 2)
         self.gridLayout_2.addWidget(self.groupBox, 1, 0, 2, 1)
 
-        self.retranslateUi(SettingsDialog)
-        QtCore.QMetaObject.connectSlotsByName(SettingsDialog)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-    def retranslateUi(self, SettingsDialog):
+    def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        SettingsDialog.setWindowTitle(_translate("SettingsDialog", "Settings"))
-        self.groupBox_2.setTitle(_translate("SettingsDialog", "System Resource Allocation"))
-        self.label.setText(_translate("SettingsDialog", "RAM"))
-        self.label_7.setText(_translate("SettingsDialog", "Total:"))
-        self.label_5.setText(_translate("SettingsDialog", "MB"))
-        self.label_3.setText(_translate("SettingsDialog", "Total:"))
-        self.system_ram.setText(_translate("SettingsDialog", "N/A"))
-        self.label_6.setText(_translate("SettingsDialog", "Number of cores:"))
-        self.system_cpu.setText(_translate("SettingsDialog", "N/A"))
-        self.label_2.setText(_translate("SettingsDialog", "MB"))
-        self.groupBox_3.setTitle(_translate("SettingsDialog", "User Settings"))
-        self.label_8.setText(_translate("SettingsDialog", "Password"))
-        self.label_4.setText(_translate("SettingsDialog", "User Name"))
-        self.groupBox.setTitle(_translate("SettingsDialog", "Server Settings"))
-        self.ip_label.setText(_translate("SettingsDialog", "Server IP:"))
-        self.port_label.setText(_translate("SettingsDialog", "Port"))
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.groupBox_2.setTitle(_translate("Dialog", "System Resource Allocation"))
+        self.label.setText(_translate("Dialog", "RAM"))
+        self.label_7.setText(_translate("Dialog", "Total:"))
+        self.label_5.setText(_translate("Dialog", "MB"))
+        self.label_3.setText(_translate("Dialog", "Total:"))
+        self.system_ram.setText(_translate("Dialog", "N/A"))
+        self.label_6.setText(_translate("Dialog", "Number of cores:"))
+        self.system_cpu.setText(_translate("Dialog", "N/A"))
+        self.label_2.setText(_translate("Dialog", "MB"))
+        self.groupBox_3.setTitle(_translate("Dialog", "User Settings"))
+        self.label_8.setText(_translate("Dialog", "Password"))
+        self.label_4.setText(_translate("Dialog", "User Name"))
+        self.groupBox.setTitle(_translate("Dialog", "Server Settings"))
+        self.ip_label.setText(_translate("Dialog", "Server IP:"))
+        self.port_label.setText(_translate("Dialog", "Port"))
 
+
+class SettingsDialog(QtWidgets.QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.InitUi()
+
+        self.ui.ip_entry.setInputMask('000.000.000.000')
+        self.ui.port_entry.setInputMask('00000')
+
+    def getValues(self):
+        return({
+            'username' : self.ui.input_username.text(),
+            'pw' : self.ui.input_password.text(), # No way!
+            'server_ip' : self.ui.ip_entry.text(),
+            'port' : self.ui.port_entry.text(),
+            'sys_ram' : self.ui.input_ram.value(),
+            'sys_cores' : self.ui.input_cpu.value()
+        })
+
+    def InitUi(self):
+        self.ui.settings_buttons.accepted.connect(self.accept)
+        self.ui.settings_buttons.rejected.connect(self.reject)
+        # self.show()
