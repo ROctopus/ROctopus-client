@@ -13,6 +13,7 @@ RSCR_PATH = 'Rscript'
 
 class roctoClass(BaseNamespace):
     def on_return_task(self, returns):
+        print('RETURNS!')
         try:
             self.task_queue.append(returns)
         except AttributeError:

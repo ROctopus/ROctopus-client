@@ -1,15 +1,15 @@
 import logging
 import sys
+import psutil
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from ROctopus_client.client import client
 from ROctopus_client.client.errors import ServerErr
 from ROctopus_client.Qt.threads import threadWorker, threadNetworker
-from ROctopus_client.Qt.ui.mainwindow import *
-from ROctopus_client.Qt.ui.settingsdialog import *
-from ROctopus_client.Qt.ui.aboutdialog import *
+from ROctopus_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
+
 
 class MainWindow(QtWidgets.QMainWindow):
     """Main Qt window with added signals and slots."""
@@ -57,7 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         for i in self.networker.sio.get_namespace().task_queue:
             task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
-            self.local_queue[i['jobId']] = task    
+            self.local_queue[i['jobId']] = task
 
     @pyqtSlot(int, int)
     def _task_status(self, status, task_id):
@@ -79,12 +79,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
 
     def InitSettings(self):
-        """Initialze SettingsDialog."""
+        """Initialize SettingsDialog."""
         self.settings_dialog = SettingsDialog()
         self.settings_dialog.ui.system_ram.setText(str(round(psutil.virtual_memory().total/1024/1024)))
         self.settings_dialog.ui.system_cpu.setText(str(psutil.cpu_count()))
 
-        # Check if the user had set server_ip, port, sys_ram and sys_cores:
+        # Check if the user had set server_ip, port, sys_ram and sys_cores, username and pw:
+        if self.settings.contains('username') and self.settings.contains('pw'):
+            self.settings_dialog.ui.input_username.setText(self.settings.value('username', type=str))
+            self.settings_dialog.ui.input_password.setText(self.settings.value('pw', type=str))
+
         if self.settings.contains('server_ip') and self.settings.contains('server_ip'):
             self.settings_dialog.ui.ip_entry.setText(self.settings.value('server_ip', type=str))
             self.settings_dialog.ui.port_entry.setText(self.settings.value('port', type=str))
@@ -97,11 +101,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.settings_dialog.exec_(): ## Modal window. Use .show() for modeless.
             values = self.settings_dialog.getValues()
             for (key, value) in values.items():
+                print(key)
                 self.settings.setValue(key, value)
 
     def InitAbout(self):
         """Initialize About dialog."""
-        self.about_dialog = AboutDialog()
+        self.about_dialog =  AboutDialog()
 
     def connect_to_server(self):
         if self.sender().text() == 'Connect':
