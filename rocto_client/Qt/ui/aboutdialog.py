@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AboutDialog(object):
     def setupUi(self, AboutDialog):
         AboutDialog.setObjectName("AboutDialog")
-        AboutDialog.resize(323, 146)
+        AboutDialog.resize(323, 154)
         self.gridLayout = QtWidgets.QGridLayout(AboutDialog)
         self.gridLayout.setContentsMargins(11, 11, 11, 11)
         self.gridLayout.setSpacing(6)
@@ -23,7 +23,10 @@ class Ui_AboutDialog(object):
         self.horizontalLayout.setSpacing(6)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.icon_lab = QtWidgets.QLabel(AboutDialog)
+        self.icon_lab.setMaximumSize(QtCore.QSize(100, 100))
         self.icon_lab.setText("")
+        self.icon_lab.setPixmap(QtGui.QPixmap("icons/icon.png"))
+        self.icon_lab.setScaledContents(True)
         self.icon_lab.setIndent(-1)
         self.icon_lab.setObjectName("icon_lab")
         self.horizontalLayout.addWidget(self.icon_lab)
@@ -44,4 +47,3 @@ class Ui_AboutDialog(object):
         _translate = QtCore.QCoreApplication.translate
         AboutDialog.setWindowTitle(_translate("AboutDialog", "AboutDialog"))
         self.about_text.setText(_translate("AboutDialog", "<html><head/><body><p>ROctopus Client</p><p>Erik-Jan van Kesteren (<a href=\"https://github.com/vankesteren\"><span style=\" text-decoration: underline; color:#0000ff;\">GitHub</span></a>)<br/>Oğuzhan Öğreden (<a href=\"https://github.com/oguzhanogreden\"><span style=\" text-decoration: underline; color:#0000ff;\">GitHub</span></a>)</p></body></html>"))
-
