@@ -9,15 +9,15 @@ def readme():
     with open('Readme.md', 'r') as f:
         return f.read()
 
-setup(name='ROctopus-client',
+setup(name='rocto-client',
       version='0.0.1',
-      description='The client for ROctopus',
+      description='The client for rocto.',
       long_description=readme(),
       url='https://github.com/ROctopus/ROctopus-client',
       author='Oğuzhan Öğreden',
       author_email='oguzhanogreden@gmail.com',
       license='XXX',
-      packages=['ROctopus_client'],
+      packages=['rocto_client'],
       install_requires=[
      'socketIO-client', 'requests', 'urllib3', 'psutil'
       ],

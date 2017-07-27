@@ -18,5 +18,5 @@ If you are up for a messy installation, any time! For others, easy to install pa
 1. Clone the repository.
 2. Run `pip3 install -r requirements.txt` in the repository directory.
 3. Make sure all went well :)
-4. Run `python3 rocto_client/Qt/gui.py`.
+4. Run `python3 ROctopus_client/Qt/gui.py`.
 5. If you want to play around, make sure you have a [rocto-server](https://github.com/roctoproject/rocto-server) running.

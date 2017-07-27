@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from ROctopus_client.client.client import roctoClass, Task
+from rocto_client.client.client import roctoClass, Task
 from socketIO_client import SocketIO, exceptions
 import base64
 

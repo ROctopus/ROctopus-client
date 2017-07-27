@@ -5,10 +5,10 @@ import psutil
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
-from ROctopus_client.client import client
-from ROctopus_client.client.errors import ServerErr
-from ROctopus_client.Qt.threads import threadWorker, threadNetworker
-from ROctopus_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
+from rocto_client.client import client
+from rocto_client.client.errors import ServerErr
+from rocto_client.Qt.threads import threadWorker, threadNetworker
+from rocto_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
 
 API_VERSION = '0.1.0'
 
@@ -19,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.InitUi()
-        self.settings = QtCore.QSettings('ROctopus', 'ROctopus')
+        self.settings = QtCore.QSettings('rocto_client', 'rocto_client')
 
     def _create_netwthread(self):
         self.netwthread = QtCore.QThread()

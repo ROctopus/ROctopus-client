@@ -10,7 +10,7 @@ from socketIO_client import SocketIO, BaseNamespace
 from .errors import ServerErr
 
 RSCR_PATH = 'Rscript'
-INTERM_SCR = 'ROctopus_client/client/interm.R'
+INTERM_SCR = 'rocto_client/client/interm.R'
 
 class roctoClass(BaseNamespace):
     def on_return_task(self, returns):
