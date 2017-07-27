@@ -20,7 +20,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.InitUi()
         self.settings = QtCore.QSettings('ROctopus', 'ROctopus')
-        self.settings.setValue('api_version', API_VERSION)
 
     def _create_netwthread(self):
         self.netwthread = QtCore.QThread()
@@ -34,7 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _handle_conn_status(self, code):
         if code == 1:
             logging.info('Successfully connected to server.')
-            self.ui.conn_status.setEnabled(True) # Change name in .ui
+            self.ui.conn_status.setEnabled(True)
             self.ui.conn_status.setText('Connected!')
             self.ui.connect_button.setText('Disconnect')
             self.ui.runBox.setEnabled(True)
@@ -61,16 +60,16 @@ class MainWindow(QtWidgets.QMainWindow):
             task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
             self.local_queue[i['jobId']] = task
 
-    @pyqtSlot(int, int)
-    def _task_status(self, status, task_id):
+    @pyqtSlot(int, str, int)
+    def _task_status(self, status, task_id, iter_no):
         if status == -1:
-            self.ui.textEdit.append('Task {} started.'.format(task_id))
+            self.ui.textEdit.append('Task {}.{} started.'.format(task_id, iter_no))
         if status == 0:
-            self.ui.textEdit.append('Task {} finished.'.format(task_id))
+            self.ui.textEdit.append('Task {}.{} finished.'.format(task_id, iter_no))
             self.networker.send_results.emit(self.local_queue[task_id])
 
     def InitUi(self):
-        self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory.
+        self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory?
         self.ui.actionPreferences.triggered.connect(self.InitPreferences)
         self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
@@ -83,8 +82,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def InitPreferences(self):
         """Initialize PreferencesDialog."""
         self.preferences_dialog = SettingsDialog()
-        self.preferences_dialog.ui.system_ram.setText(str(round(psutil.virtual_memory().total/1024/1024)))
-        self.preferences_dialog.ui.system_cpu.setText(str(psutil.cpu_count()))
+        self.preferences_dialog.ui.avail_ram.setText(str(round(psutil.virtual_memory().total/1024/1024)))
+        self.preferences_dialog.ui.avail_core.setText(str(psutil.cpu_count()))
 
         # Check if the user had set server_ip, port, sys_ram and sys_cores, username and pw:
         if self.settings.contains('username') and self.settings.contains('pw'):
@@ -141,7 +140,13 @@ class MainWindow(QtWidgets.QMainWindow):
             pass
 
     def get_task(self):
-        self.networker.get_task.emit()
+        self.networker.get_task.emit({
+            'cores' : 1, # 1 is fixed per API 0.1.0 reference. In future: self.settings.value('sys_cores', type=int),
+            'memory' : self.settings.value('sys_mem', type = int),
+            'RVersion' : self.settings.value('r_vers', type = str),
+            'user' : self.settings.value('username', type = str),
+            'version' : API_VERSION
+        })
         logging.info('Task request sent to server.')
 
     def start_worker(self):

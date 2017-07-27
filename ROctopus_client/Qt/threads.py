@@ -13,7 +13,7 @@ class threadNetworker(QtCore.QObject):
 
     """Signals to trigger internal methods of threadNetworker."""
     init_connect = pyqtSignal()
-    get_task = pyqtSignal()
+    get_task = pyqtSignal(dict)
     send_results = pyqtSignal(Task)
 
     """Signals to trigger events in the main Qt thread."""
@@ -29,12 +29,12 @@ class threadNetworker(QtCore.QObject):
         except exceptions.ConnectionError:
             self.conn_status.emit(-1)
 
-    @pyqtSlot()
-    def socket_gettask(self):
+    @pyqtSlot(dict)
+    def socket_gettask(self, info):
         """Gets task from the socketIO server."""
         # Change according to api/worker.json.
         try:
-            self.sio.emit('request_task')
+            self.sio.emit('request_task', info)
             self.sio.wait(.1)
             # Process self.sio.get_namespace().task_queue[0]['version'] here.
             job_id = self.sio.get_namespace().task_queue[0]['jobId']
@@ -54,7 +54,7 @@ class threadNetworker(QtCore.QObject):
         if self.sio.connected == True:
             byte_enc = base64.b64encode(open(Task.output, 'rb').read()) # DEPRECATED with worker API v0.1.0.
             self.sio.emit('send_results', {
-            'taskId' : str(Task.task_id),
+            'jobId' : str(Task.job_id),
             'iterNo' : str(Task.iter_no),
             # 'exitStatus' : send exit status
             'content' : str(byte_enc)[2:-1] # removes b'' # content may change according to exit status
@@ -63,9 +63,10 @@ class threadNetworker(QtCore.QObject):
             self.sio = SocketIO(self.ip, self.port, roctoClass, wait_for_connection = False)
             byte_enc = base64.b64encode(open(Task.output, 'rb').read()) # DEPRECATED with worker API v0.1.0.
             self.sio.emit('send_results', {
-            'taskId' : str(Task.task_id),
-            # 'exitStatus' : send exit status # content may change according to exit status
-            'content' : str(byte_enc)[2:-1] # removes b''
+            'jobId' : str(Task.job_id),
+            'iterNo' : str(Task.iter_no),
+            # 'exitStatus' : send exit status
+            'content' : str(byte_enc)[2:-1] # removes b'' # content may change according to exit status
             })
 
 class threadWorker(QtCore.QObject):
@@ -78,10 +79,10 @@ class threadWorker(QtCore.QObject):
     start = pyqtSignal()
 
     """Signals to trigger events in the main Qt thread."""
-    task_status = pyqtSignal(int, int) # -1 when task starts, 0 when finishes.
+    task_status = pyqtSignal(int, str, int) # -1 when task starts, 0 when finishes.
 
     @pyqtSlot()
     def worker_run(self):
-        self.task_status.emit(-1, self.task.task_id)
+        self.task_status.emit(-1, self.task.job_id, self.task.iter_no)
         self.task.run()
-        self.task_status.emit(0, self.task.task_id)
+        self.task_status.emit(0, self.task.job_id, self.task.iter_no)
