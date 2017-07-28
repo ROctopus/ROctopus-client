@@ -3,9 +3,12 @@ import threading
 import os.path
 import sys
 import base64
+import json
+from zipfile import ZipFile
 
 import requests
 import appdirs
+
 
 from socketIO_client import SocketIO, BaseNamespace
 
@@ -47,3 +50,8 @@ class Task(object):
             self.proc_ret.check_returncode()
         except subprocess.CalledProcessError as e:
             print(e)
+
+class roctoPack(object):
+    def __init__(self, path):
+        self.grid = json.loads(ZipFile(path).open('roctoJob/grid.json').read().decode())
+        self.meta = json.loads(ZipFile(path).open('roctoJob/meta.json').read().decode())

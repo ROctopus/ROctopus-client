@@ -8,6 +8,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from rocto_client.client import client
 from rocto_client.client.errors import ServerErr
 from rocto_client.Qt.threads import threadWorker, threadNetworker
+from rocto_client.Qt.tablemodel import roctoTableModel
 from rocto_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
 
 API_VERSION = '0.1.0'
@@ -19,6 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.InitUi()
+        self.ui.select_rocto.clicked.connect(self._choose_file)
         self.settings = QtCore.QSettings('rocto_client', 'rocto_client')
 
     def _create_netwthread(self):
@@ -28,6 +30,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def _create_workthread(self):
         self.workthread = QtCore.QThread()
         self.workthread.start()
+
+    @pyqtSlot()
+    def _choose_file(self):
+        # Submit Job tab,
+        fd_filter = ".Rocto files (*.rocto)"
+        path, __ = QtWidgets.QFileDialog.getOpenFileName(self, 'Select file', filter = fd_filter)
+        self.ui.rocto_pack = client.roctoPack(path)
+        self.ui.table_model = roctoTableModel(self.ui.rocto_pack)
+        self.ui.tableView.setModel(self.ui.table_model)
+        self.ui.tableView.setEnabled(True)
+        self.ui.tableView.doubleClicked.connect(self.ui.table_model._handle_doubleclicked)
 
     @pyqtSlot(int)
     def _handle_conn_status(self, code):

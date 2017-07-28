@@ -21,7 +21,7 @@ class Ui_PreferencesDialog(object):
         font.setWeight(50)
         PreferencesDialog.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../../../../icons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         PreferencesDialog.setWindowIcon(icon)
         PreferencesDialog.setWindowOpacity(1.0)
         PreferencesDialog.setAutoFillBackground(False)
@@ -282,3 +282,4 @@ class Ui_PreferencesDialog(object):
         self.label_7.setText(_translate("PreferencesDialog", "Total:"))
         self.avail_core.setText(_translate("PreferencesDialog", "N/A"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.syst_tab), _translate("PreferencesDialog", "System"))
+
