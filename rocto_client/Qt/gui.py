@@ -98,7 +98,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.networker.send_results.emit(self.local_queue[task_id])
 
     def InitUi(self):
-        self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory?
+        self.setWindowIcon(QtGui.QIcon(':/icons/icon.png'))
         self.ui.actionPreferences.triggered.connect(self.InitPreferences)
         self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)

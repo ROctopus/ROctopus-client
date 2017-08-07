@@ -1,7 +1,7 @@
 # Enables automated updates of .ui files created by QtCreator.
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from . import aboutdialog, preferencesdialog, mainwindow
+from . import aboutdialog, preferencesdialog, mainwindow, qtresources
 
 Ui_MainWindow = mainwindow.Ui_MainWindow
 
@@ -10,8 +10,9 @@ class AboutDialog(QtWidgets.QDialog):
         super().__init__()
         self.ui = aboutdialog.Ui_AboutDialog()
         self.ui.setupUi(self)
-        self.ui.icon_lab.setPixmap(QtGui.QPixmap('icons/icon.png'))
+        self.ui.icon_lab.setPixmap(QtGui.QPixmap(':/icons/icon.png'))
         self.InitUi()
+        self.setWindowIcon(QtGui.QIcon(':/icons/icon.png')) # Relative to runtime directory?
 
     def InitUi(self):
         self.ui.buttonBox.accepted.connect(self.accept)
@@ -23,6 +24,7 @@ class SettingsDialog(QtWidgets.QDialog):
         self.ui = preferencesdialog.Ui_PreferencesDialog()
         self.ui.setupUi(self)
         self.InitUi()
+        self.setWindowIcon(QtGui.QIcon(':/icons/icon.png')) # Relative to runtime directory?
 
         self.ui.ip_entry.setInputMask('000.000.000.000')
         self.ui.port_entry.setInputMask('00000')

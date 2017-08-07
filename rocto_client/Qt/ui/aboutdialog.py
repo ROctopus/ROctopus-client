@@ -25,7 +25,6 @@ class Ui_AboutDialog(object):
         self.icon_lab = QtWidgets.QLabel(AboutDialog)
         self.icon_lab.setMaximumSize(QtCore.QSize(100, 100))
         self.icon_lab.setText("")
-        self.icon_lab.setPixmap(QtGui.QPixmap("../../../../icons/icon.png"))
         self.icon_lab.setScaledContents(True)
         self.icon_lab.setIndent(-1)
         self.icon_lab.setObjectName("icon_lab")
