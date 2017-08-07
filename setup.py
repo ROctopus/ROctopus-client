@@ -2,8 +2,8 @@ from setuptools import setup
 import pkgutil
 
 # PyQt5 can not be installed via pip.
-if not 'PyQt5' in [i[1] for i in pkgutil.iter_modules()]:
-    raise Exception('PyQt5 needs to be installed.')
+#if not 'PyQt5' in [i[1] for i in pkgutil.iter_modules()]:
+#    raise Exception('PyQt5 needs to be installed.')
 
 def readme():
     with open('Readme.md', 'r') as f:
