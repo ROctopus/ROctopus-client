@@ -5,13 +5,12 @@ import psutil
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
+from rocto_client import API_VERSION
 from rocto_client.client import client
 from rocto_client.client.errors import ServerErr
 from rocto_client.Qt.threads import threadWorker, threadNetworker
 from rocto_client.Qt.tablemodel import roctoTableModel
 from rocto_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
-
-API_VERSION = '0.1.0'
 
 class MainWindow(QtWidgets.QMainWindow):
     """Main Qt window with added signals and slots."""
@@ -33,7 +32,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @pyqtSlot()
     def _choose_file(self):
-        # Submit Job tab,
         fd_filter = ".Rocto files (*.rocto)"
         path, __ = QtWidgets.QFileDialog.getOpenFileName(self, 'Select file', filter = fd_filter)
         self.ui.rocto_pack = client.roctoPack(path)
@@ -45,51 +43,69 @@ class MainWindow(QtWidgets.QMainWindow):
     @pyqtSlot(int)
     def _handle_conn_status(self, code):
         if code == 1:
-            logging.info('Successfully connected to server.')
-            self.ui.conn_status.setEnabled(True)
-            self.ui.conn_status.setText('Connected!')
+            logging.info('Connected to server.')
             self.ui.connect_button.setText('Disconnect')
+            self.ui.textEdit.append('Connected to server.')
             self.ui.runBox.setEnabled(True)
+            self.ui.start_button.setEnabled(True)
         elif code == 0:
-            logging.info('Successfully disconnected from server.')
-            self.ui.conn_status.setEnabled(False)
-            self.ui.conn_status.setText('Disconnected!')
+            logging.info('Disconnected from server.')
+            self.ui.textEdit.append('Successfully disconnected from server.')
+            self.ui.connect_button.setText('Connect')
         elif code == -1:
             logging.info('Connection problem!')
-            self.ui.conn_status.setEnabled(False)
-            self.ui.conn_status.setText('Disconnected!')
             self.ui.textEdit.append('Problem connecting to server.')
 
-    @pyqtSlot(int, str, int)
-    def _handle_netw_task_status(self, status, task_id, iter_no):
-        logging.info('Task {}.{} is received.'.format(task_id, iter_no))
+    @pyqtSlot(str, int)
+    def _handle_task_received(self, job_id, iter_no):
+        logging.info('Task {}.{} is received.'.format(job_id, iter_no))
 
-        self.ui.run_button.setEnabled(True)
         self.ui.textEdit.setEnabled(True)
-        self.ui.textEdit.append('Task {}.{} is received.'.format(task_id, iter_no))
+        self.ui.textEdit.append('Task {}.{} is received.'.format(job_id, iter_no))
+        self.ui.start_button.setText('Stop worker!')
+
         self.local_queue = {}
 
         for i in self.networker.sio.get_namespace().task_queue:
-            task = client.Task(i['jobId'], i['iterNo'], i['contentUrl'])
-            self.local_queue[i['jobId']] = task
+            self.local_queue[i['jobId']] = client.Task(i['jobId'], i['iterNo'], i['contentUrl'], \
+            self.settings.value('r_path', type=str))
 
-    @pyqtSlot(int, str, int)
-    def _task_status(self, status, task_id, iter_no):
-        if status == -1:
-            self.ui.textEdit.append('Task {}.{} started.'.format(task_id, iter_no))
-        if status == 0:
-            self.ui.textEdit.append('Task {}.{} finished.'.format(task_id, iter_no))
-            self.networker.send_results.emit(self.local_queue[task_id])
+        # Reinitialize the list in socketIO_client namespace.
+        self.networker.sio.get_namespace().task_queue = []
+
+    @pyqtSlot(int, str)
+    def _handle_error_received(self, code, message):
+        logging.info('Server returned error: {} - {}'.format(code, message))
+        self.ui.textEdit.append('Server returned error {}: {}'.format(code, message))
+
+
+    @pyqtSlot(str, int)
+    def _handle_result_sent(self, job_id, iter_no):
+        logging.info('Result of Task {}.{} is sent to server.'.format(job_id, iter_no))
+        self.ui.textEdit.setEnabled(True)
+        self.ui.textEdit.append('Result of Task {}.{} is sent to server.'.format(job_id, iter_no))
+
+        self.local_queue.pop(job_id)
+
+
+    @pyqtSlot(str, int)
+    def _handle_task_starts(self, task_id, iter_no):
+        self.ui.textEdit.append('Task {}.{} started.'.format(task_id, iter_no))
+
+    @pyqtSlot(str, int)
+    def _handle_task_finishes(self, task_id, iter_no):
+        self.ui.textEdit.append('Task {}.{} finished.'.format(task_id, iter_no))
+        self.networker.send_results.emit(self.local_queue[task_id])
 
     def InitUi(self):
         self.setWindowIcon(QtGui.QIcon('icons/icon.png')) # Relative to runtime directory?
         self.ui.actionPreferences.triggered.connect(self.InitPreferences)
         self.ui.actionAbout.triggered.connect(self.InitAbout)
         self.ui.connect_button.clicked.connect(self.connect_to_server)
-        self.ui.get_task_but.clicked.connect(self.get_task)
-        self.ui.run_button.clicked.connect(self.start_worker)
+        # self.ui.get_task_but.clicked.connect(self.get_task)
+        # self.ui.run_button.clicked.connect(self.start_worker) #
+        self.ui.start_button.clicked.connect(self.iter_worker)
         self.ui.actionQuit.triggered.connect(QtCore.QCoreApplication.instance().quit)
-        self.ui.quit_button.clicked.connect(QtCore.QCoreApplication.instance().quit)
         self.show()
 
     def InitPreferences(self):
@@ -131,9 +147,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
                 self.settings.value('port', type = int))
                 self.networker.init_connect.connect(self.networker.socket_initconnect)
+                self.networker.disconnect.connect(self.networker.socket_disconnect)
                 self.networker.get_task.connect(self.networker.socket_gettask)
                 self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.netw_task_status.connect(self._handle_netw_task_status)
+                self.networker.task_received.connect(self._handle_task_received)
+                self.networker.error_received.connect(self._handle_error_received)
+                self.networker.result_sent.connect(self._handle_result_sent)
                 self.networker.send_results.connect(self.networker.socket_sendresults)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.init_connect.emit()
@@ -142,15 +161,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
                 self.settings.value('port', type = int))
                 self.networker.init_connect.connect(self.networker.socket_initconnect)
+                self.networker.disconnect.connect(self.networker.socket_disconnect)
                 self.networker.get_task.connect(self.networker.socket_gettask)
                 self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.netw_task_status.connect(self._handle_netw_task_status)
+                self.networker.task_received.connect(self._handle_task_received)
+                self.networker.error_received.connect(self._handle_error_received)
+                self.networker.result_sent.connect(self._handle_result_sent)
                 self.networker.send_results.connect(self.networker.socket_sendresults)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.init_connect.emit()
         elif self.sender().text() == 'Disconnect':
-            # TODO: Implement disconnect function?
-            pass
+            self.networker.disconnect.emit()
+
 
     def get_task(self):
         self.networker.get_task.emit({
@@ -166,21 +188,38 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in self.local_queue:
             # TODO: The loop here means all of the tasks will be run.
             #       Should run only the next job in the queue after
-            #       an overall task counter is implmented..
+            #       an overall task counter is implmented.
             try:
                 self.worker = threadWorker(self.local_queue[i])
                 self.worker.start.connect(self.worker.worker_run)
-                self.worker.task_status.connect(self._task_status)
+                self.worker.task_starts.connect(self._handle_task_starts)
+                self.worker.task_finishes.connect(self._handle_task_finishes)
                 self.worker.moveToThread(self.workthread)
                 self.worker.start.emit()
             except AttributeError:
                 self._create_workthread()
                 self.worker = threadWorker(self.local_queue[i])
                 self.worker.start.connect(self.worker.worker_run)
-                self.worker.task_status.connect(self._task_status)
+                self.worker.task_starts.connect(self._handle_task_starts)
+                self.worker.task_finishes.connect(self._handle_task_finishes)
                 self.worker.moveToThread(self.workthread)
                 self.worker.start.emit()
         logging.info('Task started running.')
+
+    def iter_worker(self):
+        if self.sender().text() == 'Start worker!':
+            self.networker.task_received.connect(self.start_worker)
+            self.networker.result_sent.connect(self.get_task)
+            self.get_task()
+
+        elif self.sender().text() == 'Stop worker!':
+            self.networker.result_sent.disconnect(self.get_task)
+            self.ui.start_button.setText('Kill jobs!')
+
+        elif self.sender().text() == 'Kill jobs!':
+            print('Implement kill.')
+            self.ui.start_button.setText('Start worker!')
+
 
 logging.basicConfig(filename = 'log.log', level = logging.DEBUG)
 app = QtWidgets.QApplication(sys.argv)

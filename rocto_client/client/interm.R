@@ -3,4 +3,5 @@
 library(rocto)
 
 args <- commandArgs(trailingOnly = TRUE)
+print(args)
 roctoRun(args[1], args[2], args[3])
