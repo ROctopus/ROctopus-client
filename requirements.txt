@@ -1,0 +1,3 @@
+git+https://github.com/oguzhanogreden/socketIO-client.git#egg=socketIO-client
+
+-e .

@@ -53,3 +53,8 @@ Temporary Items
 
 __pycache__
 *.egg-info/
+tests/
+*.log
+
+# Personal notes - oguzhan:
+oguzhan_notes
