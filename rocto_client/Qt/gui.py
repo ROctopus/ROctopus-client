@@ -1,6 +1,7 @@
+import base64
 import logging
-import sys
 import psutil
+import sys
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
@@ -20,6 +21,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.InitUi()
         self.ui.select_rocto.clicked.connect(self._choose_file)
+        self.ui.submit_button.clicked.connect(self.submit_task)
         self.settings = QtCore.QSettings('rocto_client', 'rocto_client')
 
     def _create_netwthread(self):
@@ -39,6 +41,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.tableView.setModel(self.ui.table_model)
         self.ui.tableView.setEnabled(True)
         self.ui.tableView.doubleClicked.connect(self.ui.table_model._handle_doubleclicked)
+        self.ui.submit_button.setEnabled(True)
 
     @pyqtSlot(int)
     def _handle_conn_status(self, code):
@@ -154,6 +157,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker.error_received.connect(self._handle_error_received)
                 self.networker.result_sent.connect(self._handle_result_sent)
                 self.networker.send_results.connect(self.networker.socket_sendresults)
+                self.networker.submit_task.connect(self.networker.socket_submitjob)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.init_connect.emit()
             except AttributeError:
@@ -168,11 +172,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.networker.error_received.connect(self._handle_error_received)
                 self.networker.result_sent.connect(self._handle_result_sent)
                 self.networker.send_results.connect(self.networker.socket_sendresults)
+                self.networker.submit_task.connect(self.networker.socket_submitjob)
                 self.networker.moveToThread(self.netwthread)
                 self.networker.init_connect.emit()
         elif self.sender().text() == 'Disconnect':
             self.networker.disconnect.emit()
-
 
     def get_task(self):
         self.networker.get_task.emit({
@@ -220,6 +224,21 @@ class MainWindow(QtWidgets.QMainWindow):
             print('Implement kill.')
             self.ui.start_button.setText('Start worker!')
 
+    def submit_task(self):
+        # print(self.ui.rocto_pack)
+        submission = {'meta' : self.ui.rocto_pack.meta}
+
+        selected_tasks = [i for (i,j) in enumerate(ex.ui.table_model.rocto_pack.grid) if j['Run?'] != 0]
+
+        # Below doesn't match API v0.1.0. Fix it when it's standardized.
+        submission['selected_tasks'] = selected_tasks
+
+        submission_buffer = base64.b64encode(open(self.ui.rocto_pack.path, 'rb').read())
+        submission['content'] = str(submission_buffer)[2:-1]
+
+        # Error prone, what if connection is not set?
+        self.networker.submit_task.emit(submission)
+        print('asd')
 
 logging.basicConfig(filename = 'log.log', level = logging.DEBUG)
 app = QtWidgets.QApplication(sys.argv)

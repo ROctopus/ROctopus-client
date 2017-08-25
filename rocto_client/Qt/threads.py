@@ -19,6 +19,7 @@ class threadNetworker(QtCore.QObject):
     disconnect = pyqtSignal()
     get_task = pyqtSignal(dict)
     send_results = pyqtSignal(Task)
+    submit_task = pyqtSignal(dict)
 
     """Signals to trigger events in the main Qt thread."""
     conn_status = pyqtSignal(int) # 1 for success, -1 for error.
@@ -80,6 +81,12 @@ class threadNetworker(QtCore.QObject):
             'exitStatus' : Task.status,
             'content' : str(Task.output)[2:-1] # removes b'' # content may change according to exit status
             })
+
+    @pyqtSlot(dict)
+    def socket_submitjob(self, submission):
+        # Error prone. What if no connection?
+        print(submission.keys())
+        self.sio.emit('submit_job', submission)
 
 class threadWorker(QtCore.QObject):
     """worker object to run received tasks locally."""

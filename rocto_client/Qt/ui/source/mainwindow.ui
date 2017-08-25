@@ -18,7 +18,7 @@
     <item row="0" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="get_task">
        <attribute name="title">
@@ -188,6 +188,9 @@
         </item>
         <item row="3" column="4">
          <widget class="QPushButton" name="submit_button">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Submit</string>
           </property>
@@ -224,7 +227,7 @@
      <x>0</x>
      <y>0</y>
      <width>402</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

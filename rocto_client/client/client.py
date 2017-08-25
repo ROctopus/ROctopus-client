@@ -69,5 +69,6 @@ class Task(object):
 
 class roctoPack(object):
     def __init__(self, path):
+        self.path = path
         self.grid = json.loads(ZipFile(path).open('roctoJob/grid.json').read().decode())
         self.meta = json.loads(ZipFile(path).open('roctoJob/meta.json').read().decode())

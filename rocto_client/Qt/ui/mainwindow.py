@@ -92,6 +92,7 @@ class Ui_MainWindow(object):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_4.addItem(spacerItem2, 0, 3, 1, 1)
         self.submit_button = QtWidgets.QPushButton(self.submit_task)
+        self.submit_button.setEnabled(False)
         self.submit_button.setIconSize(QtCore.QSize(16, 16))
         self.submit_button.setObjectName("submit_button")
         self.gridLayout_4.addWidget(self.submit_button, 3, 4, 1, 1)
@@ -101,7 +102,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.tabWidget, 0, 1, 1, 1)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 402, 25))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 402, 20))
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -132,7 +133,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuAbout.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
