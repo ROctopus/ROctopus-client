@@ -8,7 +8,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from rocto_client import API_VERSION
 from rocto_client.client import client
-from rocto_client.client.errors import ServerErr, NotRoctoFile, NoConnection
+from rocto_client.client.errors import ServerErr, NotRoctoFile, NoConnection, SettingError
 from rocto_client.Qt.threads import threadWorker, threadNetworker
 from rocto_client.Qt.tablemodel import roctoTableModel
 from rocto_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
@@ -23,6 +23,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.select_rocto.clicked.connect(self._choose_file)
         self.ui.submit_button.clicked.connect(self.submit_task)
         self.settings = QtCore.QSettings('rocto_client', 'rocto_client')
+
+        try:
+            self.__sanity_checks()
+        except SettingError:
+            self.__show_warning("First time here? Let's make some settings!")
+            self.InitPreferences()
+
+    def __sanity_checks(self):
+        checks = [len(str(self.settings.value(i))) == 0 for i in self.settings.allKeys()]
+
+        if any(checks):
+            raise SettingError
+
+    def __show_warning(self, text):
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setText(text)
+        msgbox.exec_()
 
     def _create_netwthread(self):
         self.netwthread = QtCore.QThread()
@@ -152,38 +169,45 @@ class MainWindow(QtWidgets.QMainWindow):
         self.about_dialog =  AboutDialog()
 
     def connect_to_server(self):
-        if self.sender().text() == 'Connect':
-            try:
-                self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
-                self.settings.value('port', type = int))
-                self.networker.init_connect.connect(self.networker.socket_initconnect)
-                self.networker.disconnect.connect(self.networker.socket_disconnect)
-                self.networker.get_task.connect(self.networker.socket_gettask)
-                self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.task_received.connect(self._handle_task_received)
-                self.networker.error_received.connect(self._handle_error_received)
-                self.networker.result_sent.connect(self._handle_result_sent)
-                self.networker.send_results.connect(self.networker.socket_sendresults)
-                self.networker.submit_task.connect(self.networker.socket_submitjob)
-                self.networker.moveToThread(self.netwthread)
-                self.networker.init_connect.emit()
-            except AttributeError:
-                self._create_netwthread()
-                self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
-                self.settings.value('port', type = int))
-                self.networker.init_connect.connect(self.networker.socket_initconnect)
-                self.networker.disconnect.connect(self.networker.socket_disconnect)
-                self.networker.get_task.connect(self.networker.socket_gettask)
-                self.networker.conn_status.connect(self._handle_conn_status)
-                self.networker.task_received.connect(self._handle_task_received)
-                self.networker.error_received.connect(self._handle_error_received)
-                self.networker.result_sent.connect(self._handle_result_sent)
-                self.networker.send_results.connect(self.networker.socket_sendresults)
-                self.networker.submit_task.connect(self.networker.socket_submitjob)
-                self.networker.moveToThread(self.netwthread)
-                self.networker.init_connect.emit()
-        elif self.sender().text() == 'Disconnect':
-            self.networker.disconnect.emit()
+        try:
+            self.__sanity_checks()
+            if self.sender().text() == 'Connect':
+                try:
+                    self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
+                    self.settings.value('port', type = int))
+                    self.networker.init_connect.connect(self.networker.socket_initconnect)
+                    self.networker.disconnect.connect(self.networker.socket_disconnect)
+                    self.networker.get_task.connect(self.networker.socket_gettask)
+                    self.networker.conn_status.connect(self._handle_conn_status)
+                    self.networker.task_received.connect(self._handle_task_received)
+                    self.networker.error_received.connect(self._handle_error_received)
+                    self.networker.result_sent.connect(self._handle_result_sent)
+                    self.networker.send_results.connect(self.networker.socket_sendresults)
+                    self.networker.submit_task.connect(self.networker.socket_submitjob)
+                    self.networker.moveToThread(self.netwthread)
+                    self.networker.init_connect.emit()
+                except AttributeError:
+                    self._create_netwthread()
+                    self.networker = threadNetworker(self.settings.value('server_ip', type = str),\
+                    self.settings.value('port', type = int))
+                    self.networker.init_connect.connect(self.networker.socket_initconnect)
+                    self.networker.disconnect.connect(self.networker.socket_disconnect)
+                    self.networker.get_task.connect(self.networker.socket_gettask)
+                    self.networker.conn_status.connect(self._handle_conn_status)
+                    self.networker.task_received.connect(self._handle_task_received)
+                    self.networker.error_received.connect(self._handle_error_received)
+                    self.networker.result_sent.connect(self._handle_result_sent)
+                    self.networker.send_results.connect(self.networker.socket_sendresults)
+                    self.networker.submit_task.connect(self.networker.socket_submitjob)
+                    self.networker.moveToThread(self.netwthread)
+                    self.networker.init_connect.emit()
+            elif self.sender().text() == 'Disconnect':
+                self.networker.disconnect.emit()
+        except SettingError as e:
+            self.__show_warning(e.msg)
+            self.InitPreferences()
+
+
 
     def get_task(self):
         self.networker.get_task.emit({

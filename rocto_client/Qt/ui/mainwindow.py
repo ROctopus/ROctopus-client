@@ -37,6 +37,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 0, 3, 1, 1)
         self.connect_button = QtWidgets.QPushButton(self.get_task)
+        self.connect_button.setEnabled(True)
         self.connect_button.setObjectName("connect_button")
         self.gridLayout_2.addWidget(self.connect_button, 0, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)

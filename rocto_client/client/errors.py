@@ -1,3 +1,10 @@
+class SettingError(Exception):
+    """Raised if user did not enter settings."""
+
+    def __init__(self):
+        self.msg = 'You should take a look at your settings.'
+        super().__init__(self.msg)
+
 class NotRoctoFile(Exception):
     """Raised if the user selects a file which is not a zip file."""
 
