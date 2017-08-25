@@ -4,7 +4,7 @@ import os.path
 import sys
 import base64
 import json
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 
 import requests
 import appdirs
@@ -12,7 +12,7 @@ import appdirs
 
 from socketIO_client import SocketIO, BaseNamespace
 
-from .errors import ServerErr
+from .errors import ServerErr, NotRoctoFile
 
 INTERM_SCR = 'rocto_client/client/interm.R'
 APP_DIR = appdirs.user_data_dir('rocto_client')
@@ -69,6 +69,11 @@ class Task(object):
 
 class roctoPack(object):
     def __init__(self, path):
+        try:
+            zipfile = ZipFile(path)
+        except BadZipFile:
+            raise(NotRoctoFile())
+
         self.path = path
-        self.grid = json.loads(ZipFile(path).open('roctoJob/grid.json').read().decode())
-        self.meta = json.loads(ZipFile(path).open('roctoJob/meta.json').read().decode())
+        self.grid = json.loads(zipfile.open('roctoJob/grid.json').read().decode())
+        self.meta = json.loads(zipfile.open('roctoJob/meta.json').read().decode())

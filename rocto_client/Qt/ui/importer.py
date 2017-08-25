@@ -26,9 +26,6 @@ class SettingsDialog(QtWidgets.QDialog):
         self.InitUi()
         self.setWindowIcon(QtGui.QIcon(':/icons/icon.png')) # Relative to runtime directory?
 
-        self.ui.ip_entry.setInputMask('000.000.000.000')
-        self.ui.port_entry.setInputMask('00000')
-
     def getValues(self):
         return({
             'username' : self.ui.input_username.text(),

@@ -8,7 +8,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from rocto_client import API_VERSION
 from rocto_client.client import client
-from rocto_client.client.errors import ServerErr
+from rocto_client.client.errors import ServerErr, NotRoctoFile, NoConnection
 from rocto_client.Qt.threads import threadWorker, threadNetworker
 from rocto_client.Qt.tablemodel import roctoTableModel
 from rocto_client.Qt.ui.importer import AboutDialog, SettingsDialog, Ui_MainWindow
@@ -36,12 +36,19 @@ class MainWindow(QtWidgets.QMainWindow):
     def _choose_file(self):
         fd_filter = ".Rocto files (*.rocto)"
         path, __ = QtWidgets.QFileDialog.getOpenFileName(self, 'Select file', filter = fd_filter)
-        self.ui.rocto_pack = client.roctoPack(path)
-        self.ui.table_model = roctoTableModel(self.ui.rocto_pack)
-        self.ui.tableView.setModel(self.ui.table_model)
-        self.ui.tableView.setEnabled(True)
-        self.ui.tableView.doubleClicked.connect(self.ui.table_model._handle_doubleclicked)
-        self.ui.submit_button.setEnabled(True)
+        self.ui.lab_sel_file_name.setText(path)
+        if not path == '': # If QFileDialog is closed without selection.
+            try:
+                self.ui.rocto_pack = client.roctoPack(path)
+                self.ui.table_model = roctoTableModel(self.ui.rocto_pack)
+                self.ui.tableView.setModel(self.ui.table_model)
+                self.ui.tableView.setEnabled(True)
+                self.ui.tableView.doubleClicked.connect(self.ui.table_model._handle_doubleclicked)
+                self.ui.submit_button.setEnabled(True)
+            except NotRoctoFile as e:
+                msgbox = QtWidgets.QMessageBox()
+                msgbox.setText(e.msg)
+                msgbox.exec_()
 
     @pyqtSlot(int)
     def _handle_conn_status(self, code):
@@ -225,7 +232,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.start_button.setText('Start worker!')
 
     def submit_task(self):
-        # print(self.ui.rocto_pack)
         submission = {'meta' : self.ui.rocto_pack.meta}
 
         selected_tasks = [i for (i,j) in enumerate(ex.ui.table_model.rocto_pack.grid) if j['Run?'] != 0]
@@ -236,9 +242,18 @@ class MainWindow(QtWidgets.QMainWindow):
         submission_buffer = base64.b64encode(open(self.ui.rocto_pack.path, 'rb').read())
         submission['content'] = str(submission_buffer)[2:-1]
 
-        # Error prone, what if connection is not set?
-        self.networker.submit_task.emit(submission)
-        print('asd')
+        # Error prone, what if connection is not set
+        try:
+            self.networker.submit_task.emit(submission)
+        except AttributeError as e:
+            # TODO: self.connect_to_server() not functional in this case. Since #       connect_to_server relies on the sender widget text. It
+            #       should rather rely on a local variable for presence or
+            #       absence of connection.
+            #       For the time being, an error is raised.
+            logging.error('{} {}'.format(e, 'user asked to connect first.'))
+            msgbox = QtWidgets.QMessageBox()
+            msgbox.setText('You should first connect to the server.\n\nBetter yet, we should soon make sure that happens in the background! :-)')
+            msgbox.exec_()
 
 logging.basicConfig(filename = 'log.log', level = logging.DEBUG)
 app = QtWidgets.QApplication(sys.argv)
