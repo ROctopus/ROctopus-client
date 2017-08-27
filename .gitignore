@@ -52,6 +52,7 @@ Temporary Items
 .apdisk
 
 __pycache__
+*.pyc
 *.egg-info/
 tests/
 *.log
