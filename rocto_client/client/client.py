@@ -1,3 +1,5 @@
+'''rocto-client GUI independent class definitions.'''
+
 import subprocess
 import threading
 import os.path

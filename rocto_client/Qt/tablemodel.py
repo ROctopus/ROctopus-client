@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 class roctoTableModel(QtCore.QAbstractTableModel):
-
     # pandas.sandbox has nice examples to inspire here.
     def __init__(self, rocto_pack):
         super().__init__()

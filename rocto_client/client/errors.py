@@ -1,3 +1,5 @@
+'''Errors used by client.'''
+
 class SettingError(Exception):
     """Raised if user did not enter settings."""
 

@@ -1,4 +1,4 @@
-# R script linking worker to roctoRun in R package.
+'''R script linking the client worker to roctoRun in R package.'''
 
 library(rocto)
 

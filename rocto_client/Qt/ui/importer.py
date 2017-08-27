@@ -1,23 +1,24 @@
-# Enables automated updates of .ui files created by QtCreator.
+'''Imports windows from Qt generated Python modules of the Qt designs.'''
+
 import base64
 import logging
-import psutil
 import sys
 
+import psutil
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from rocto_client import API_VERSION
 from rocto_client.client import client
 from rocto_client.client.errors import ServerErr, NotRoctoFile, NoConnection, SettingError
-from rocto_client.Qt.threads import threadWorker, threadNetworker
 from rocto_client.Qt.tablemodel import roctoTableModel
+from rocto_client.Qt.threads import threadWorker, threadNetworker
+from rocto_client.Qt.ui import aboutdialog, preferencesdialog, mainwindow, qtresources
 
-from . import aboutdialog, preferencesdialog, mainwindow, qtresources
-from rocto_client.client.errors import ServerErr, NotRoctoFile, NoConnection, SettingError
 
 class MainWindow(QtWidgets.QMainWindow):
     """Main Qt window with added signals and slots."""
+
     def __init__(self):
         super().__init__()
         self.ui = mainwindow.Ui_MainWindow()
@@ -281,6 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
             msgbox.setText('You should first connect to the server.\n\nBetter yet, we should soon make sure that happens in the background! :-)')
             msgbox.exec_()
 
+
 class AboutDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
@@ -293,6 +295,7 @@ class AboutDialog(QtWidgets.QDialog):
     def InitUi(self):
         self.ui.buttonBox.accepted.connect(self.accept)
         self.show()
+
 
 class SettingsDialog(QtWidgets.QDialog):
     def __init__(self):
