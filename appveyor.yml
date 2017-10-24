@@ -17,5 +17,6 @@ install:
   - python -m pip install -r requirements.txt
 build_script:
   - cmd: call scripts/winbuild.bat
+  - 7z a dist\\rocto.zip dist\\rocto\\
 artifacts:
-  - path: dist/*
+  - path: dist\\*
