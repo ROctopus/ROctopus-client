@@ -13,11 +13,12 @@ environment:
 
 init:
   - ECHO %PYTHON_ARCH%
-  - %PYTH% --version
+  - call %PYTH% --version
+  
 install:
-  - %PYTH% -m pip install -U pip 
-  - %PYTH% -m pip install pyinstaller==3.3
-  - %PYTH% -m pip install -r requirements.txt
+  - call %PYTH% -m pip install -U pip 
+  - call %PYTH% -m pip install pyinstaller==3.3
+  - call %PYTH% -m pip install -r requirements.txt
 build_script:
   - call scripts/winbuild.bat
 artifacts:
