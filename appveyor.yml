@@ -22,4 +22,4 @@ install:
 build_script:
   - call scripts/winbuild.bat
 artifacts:
-  - path: dist/*
+  - path: dist/rocto-client
