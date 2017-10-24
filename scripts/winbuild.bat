@@ -1,4 +1,5 @@
-pyinstaller --noconfirm --log-level=INFO ^
+%PYTHON%\\Scripts\\pyinstaller.exe ^
+    --noconfirm --log-level=INFO ^
     --onedir --windowed ^
     --name="rocto-client" ^
     --icon=rocto_client\Qt\ui\source\icons\rocto_icon.ico ^

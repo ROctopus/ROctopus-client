@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/roctoproject/rocto-server/master/rocto-icon.png" width="15%"></img>
   <h1 align="center">rocto-client</h1>
   <p align="center">
-  <span> [![Build status](https://ci.appveyor.com/api/projects/status/yx2gtaa477uu5ood?svg=true)](https://ci.appveyor.com/project/vankesteren/rocto-client) </span>
+  <span> [ ![Build status](https://ci.appveyor.com/api/projects/status/yx2gtaa477uu5ood?svg=true) ](https://ci.appveyor.com/project/vankesteren/rocto-client) </span>
   </p>
 </p>
 <br/>
