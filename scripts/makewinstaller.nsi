@@ -11,7 +11,7 @@
 Name "rocto-client"
 
 ; The file to write
-OutFile "..\dist\roctoclient.exe"
+OutFile "..\dist\setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\rocto-client
