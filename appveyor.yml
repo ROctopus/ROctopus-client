@@ -12,11 +12,11 @@ environment:
 init:
   - ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%
   - py --version
-  - python --version
 install:
   - py -m pip install -U pip 
   - py -m pip install pyinstaller==3.3
   - py -m pip install -r requirements.txt
+  - cmd set PATH=%PYTHON%\\Scripts;%PATH%
 build_script:
   - cmd: call scripts/winbuild.bat
   - 7z a dist/rocto.zip dist/rocto/
