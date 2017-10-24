@@ -1,4 +1,4 @@
-%PYTHON%\\Scripts\\pyinstaller.exe ^
+%PYINSTALLER% ^
     --noconfirm --log-level=INFO ^
     --onedir --windowed ^
     --name="rocto-client" ^

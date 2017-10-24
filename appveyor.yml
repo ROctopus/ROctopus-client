@@ -1,23 +1,22 @@
 version: 0.1.{build}
 environment:
   matrix:
-    - PYTHON: C:\\Python36
-      PYTHON_VERSION: "3.6.x"
+    - PYTH: C:\\Python36\\python.exe
+      PYINSTALLER: C:\\Python36\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "32"
     
-    - PYTHON: C:\\Python36-x64
-      PYTHON_VERSION: "3.6.x"
+    - PYTH: C:\\Python36-x64\\python.exe
+      PYINSTALLER: C:\\Python36-x64\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "64"
 
 init:
-  - ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%
-  - py --version
+  - ECHO %PYTHON_ARCH%
+  - %PYTH% --version
 install:
-  - py -m pip install -U pip 
-  - py -m pip install pyinstaller==3.3
-  - py -m pip install -r requirements.txt
+  - %PYTH% -m pip install -U pip 
+  - %PYTH% -m pip install pyinstaller==3.3
+  - %PYTH% -m pip install -r requirements.txt
 build_script:
   - call scripts/winbuild.bat
-  - 7z a dist/rocto.zip dist/rocto/
 artifacts:
   - path: dist/*
