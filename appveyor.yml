@@ -5,11 +5,13 @@ environment:
       PYTH: C:\\Python36\\python.exe
       PYINSTALLER: C:\\Python36\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "32"
+      MAKENSIS: "C:\\Program Files (x86)\\NSIS\\makensis.exe"
     
     - PYTHON: C:\\Python36-x64
       PYTH: C:\\Python36-x64\\python.exe
       PYINSTALLER: C:\\Python36-x64\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "64"
+      MAKENSIS: "C:\\Program Files (x86)\\NSIS\\makensis.exe"
 
 init:
   - ECHO %PYTHON_ARCH%
@@ -21,6 +23,6 @@ install:
   - call %PYTH% -m pip install -r requirements.txt
 build_script:
   - call scripts\\winbuild.bat
-  - "C:\\Program Files (x86)\\NSIS\\makensis.exe" scripts\\makewinstaller.nsi
+  - call %MAKENSIS% scripts\\makewinstaller.nsi
 artifacts:
   - path: dist/*
