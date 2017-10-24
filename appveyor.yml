@@ -1,11 +1,13 @@
 version: 0.1.{build}
 environment:
   matrix:
-    - PYTH: C:\\Python36\\python.exe
+    - PYTHON: C:\\Python36
+      PYTH: C:\\Python36\\python.exe
       PYINSTALLER: C:\\Python36\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "32"
     
-    - PYTH: C:\\Python36-x64\\python.exe
+    - PYTHON: C:\\Python36-x64
+      PYTH: C:\\Python36-x64\\python.exe
       PYINSTALLER: C:\\Python36-x64\\Scripts\\pyinstaller.exe
       PYTHON_ARCH: "64"
 
