@@ -1,0 +1,5 @@
+version: 0.1.{build}
+build_script:
+- cmd: call scripts/winbuild.bat
+artifacts:
+- path: dist/rocto.exe
