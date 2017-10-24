@@ -1,4 +1,7 @@
 version: 0.1.{build}
+branches:
+  only:
+  - windowsBuild
 build_script:
 - cmd: call scripts/winbuild.bat
 artifacts:
