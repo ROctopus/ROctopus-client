@@ -1,3 +1,4 @@
 git+https://github.com/oguzhanogreden/socketIO-client.git#egg=socketIO-client
-
 -e .
+
+PyQt5 >= 5.9

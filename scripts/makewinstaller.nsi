@@ -45,7 +45,7 @@ Section "rocto-client (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File ..\dist\rc-debug.exe
+  File ..\dist\rocto-client.exe
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\NSIS_rocto-client "Install_Dir" "$INSTDIR"
@@ -64,7 +64,7 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\rocto-client"
   CreateShortcut "$SMPROGRAMS\rocto-client\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortcut "$SMPROGRAMS\rocto-client\rocto-client (MakeNSISW).lnk" "$INSTDIR\rocto-client.exe" "" "$INSTDIR\rocto-client.nsi" 0
+  CreateShortcut "$SMPROGRAMS\rocto-client\rocto-client.lnk" "$INSTDIR\rocto-client.exe" "" "$INSTDIR\rocto-client.nsi" 0
   
 SectionEnd
 
