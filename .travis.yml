@@ -1,9 +1,9 @@
 language: python
-python: 
+python:
  - "3.5"
  - "pypy3"
 before_install:
  - "sudo apt-get install python3-pyqt5"
  - "sudo pip install pyinstaller"
  - "pip install -r requirements.txt"
-install: "pyinstaller --name 'Rocto Client' --onefile rocto_client/Qt/gui.py"
+install: "pyinstaller --name 'Rocto Client' --onefile rocto_client/__main__.py"
