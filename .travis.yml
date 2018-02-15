@@ -1,7 +1,6 @@
 language: python
 python:
   - "3.6"
-  - "pypy3.6"
 before_install:
   - "sudo apt-get install python3-pyqt5"
   - "sudo pip install pyinstaller"
