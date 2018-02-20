@@ -76,6 +76,9 @@ class roctoPack(object):
         except BadZipFile:
             raise(NotRoctoFile())
 
-        self.path = path
-        self.grid = json.loads(zipfile.open('roctoJob/grid.json').read().decode())
-        self.meta = json.loads(zipfile.open('roctoJob/meta.json').read().decode())
+        self.path = path       
+        
+        foldername = ZipFile(path).namelist()[0].split(sep=os.altsep, maxsplit=1)[0]
+         
+        self.grid = json.loads(zipfile.open(foldername + '/grid.json').read().decode())
+        self.meta = json.loads(zipfile.open(foldername + '/meta.json').read().decode())
