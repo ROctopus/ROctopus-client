@@ -3,6 +3,7 @@
 import sys
 import logging
 import tempfile
+import ipdb
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from rocto_client.Qt.ui.importer import MainWindow

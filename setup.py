@@ -19,6 +19,6 @@ setup(name='rocto-client',
       license='XXX',
       packages=['rocto_client'],
       install_requires=[
-     'socketIO-client', 'requests', 'urllib3', 'psutil', 'appdirs==1.4.3'
+     'socketIO-client==0.7.3', 'requests', 'urllib3', 'psutil', 'appdirs==1.4.3'
       ],
       zip_safe=False)

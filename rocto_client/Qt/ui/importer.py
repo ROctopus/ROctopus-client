@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def submit_task(self):
         submission = {'meta' : self.ui.rocto_pack.meta}
 
-        selected_tasks = [i for (i,j) in enumerate(ex.ui.table_model.rocto_pack.grid) if j['Run?'] != 0]
+        selected_tasks = [i for (i,j) in enumerate(self.ui.table_model.rocto_pack.grid) if j['Run?'] != 0]
 
         # Below doesn't match API v0.1.0. Fix it when it's standardized.
         submission['selected_tasks'] = selected_tasks

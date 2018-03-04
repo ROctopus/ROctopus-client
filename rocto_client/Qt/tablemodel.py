@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
+import ipdb
 
 class roctoTableModel(QtCore.QAbstractTableModel):
     # pandas.sandbox has nice examples to inspire here.
@@ -11,10 +12,14 @@ class roctoTableModel(QtCore.QAbstractTableModel):
     def __gridReorganize(self):
         # Add a column to let user select which settings to run.
         select_col = 'Run?'
+        
+        # a dict yields its keys when iterated
+        pars =  [*self.rocto_pack.grid[0]]
 
         for i in self.rocto_pack.grid:
             i[select_col] = 2 # = QtCore.Qt.Checked
-        self.rocto_pack.columns = [select_col] + self.rocto_pack.meta['params']
+        
+        self.rocto_pack.columns = [select_col] + pars
 
     @pyqtSlot(QtCore.QModelIndex)
     def _handle_doubleclicked(self, model_index):
@@ -26,7 +31,7 @@ class roctoTableModel(QtCore.QAbstractTableModel):
 
     # Required subclassing definitions: https://doc.qt.io/qt-5/qabstractitemmodel.html#subclassing
     def columnCount(self, model_index):
-        return len(self.rocto_pack.meta['nParams']) + 2
+        return len(self.rocto_pack.columns)
 
     def rowCount(self, model_index):
         return len(self.rocto_pack.grid)
