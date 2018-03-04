@@ -2,9 +2,13 @@
 
 import base64
 import logging
+import hashlib
+import os
+import psutil
 import sys
 
-import psutil
+from datetime import datetime
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
@@ -259,15 +263,28 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.start_button.setText('Start worker!')
 
     def submit_task(self):
-        submission = {'meta' : self.ui.rocto_pack.meta}
+        f = open(self.ui.rocto_pack.path, 'rb')
+        fr = f.read()
+        submission_buffer = base64.b64encode(fr)
+        submission = {'content' : str(submission_buffer)[2:-1]}
+        f.close()
 
-        selected_tasks = [i for (i,j) in enumerate(self.ui.table_model.rocto_pack.grid) if j['Run?'] != 0]
+        submission['meta'] = self.ui.rocto_pack.meta
+        # Collect info at extend 'meta', API v0.2.0
+        time_string = datetime.utcnow().strftime("%y%m%d_%H%M%S_")
+        hasher = hashlib.blake2b(digest_size = 8)
+        hasher.update(fr)
+        hash_string = hasher.hexdigest()
+        meta_extend = {
+            'jobId' : time_string + hash_string,
+            'user' : self.settings.value("username"),
+            'selectedTasks' : [i for (i,j) in enumerate(self.ui.table_model.rocto_pack.grid) if j['Run?'] != 0],
+            'fileSize' : os.stat(self.ui.rocto_pack.path).st_size,
+            'notify' : 'none'
 
-        # Below doesn't match API v0.1.0. Fix it when it's standardized.
-        submission['selected_tasks'] = selected_tasks
+        }
 
-        submission_buffer = base64.b64encode(open(self.ui.rocto_pack.path, 'rb').read())
-        submission['content'] = str(submission_buffer)[2:-1]
+        submission['meta'].update(meta_extend)
 
         # Error prone, what if connection is not set
         try:
